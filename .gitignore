@@ -4,7 +4,3 @@ src
 package-lock.json
 package.json
 .gitignore
-.dist
-
-#dont ignore files in
-!*dist/
