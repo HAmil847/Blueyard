@@ -1,0 +1,136 @@
+:root {
+  --focus-color: white;
+  --second-color: #f5f5f5cc;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+div.conteiner {
+  width: 40%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  display: flex;
+}
+
+div.conteiner * {
+  margin-top: 0;
+}
+
+div.conteiner h1.title {
+  color: var(--focus-color);
+  margin: 0 0 0 -5px;
+  font-family: Trebuchet MS, Lucida Sans Unicode, Lucida Grande, Lucida Sans, Arial, sans-serif;
+  font-size: 100px;
+}
+
+div.conteiner p.description {
+  color: var(--second-color);
+  margin: 10px 0;
+  font-family: Gill Sans, Gill Sans MT, Calibri, Trebuchet MS, sans-serif;
+  font-size: 1.1rem;
+}
+
+div.btn-begin {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  outline: 1px solid #fff;
+  margin: 5px 5px 5px 60px;
+}
+
+div.btn-begin:hover {
+  background-color: #f5f5f513;
+}
+
+.dot {
+  z-index: 100;
+  pointer-events: all;
+  flex-direction: column;
+  align-items: center;
+  transition: all;
+  display: flex;
+}
+
+.dot img {
+  width: 35px;
+  height: 35px;
+  border: solid #772eff;
+  border-radius: 50%;
+}
+
+.dot h3, .dot h4 {
+  color: #fff;
+  text-align: center;
+  margin: 0;
+}
+
+div.presentation {
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0 150px;
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.text-animated-conteiner {
+  width: 550px;
+  overflow: hidden;
+}
+
+.animated-item {
+  color: #fff;
+  position: relative;
+}
+
+.dot-animated-conteiner {
+  display: none;
+  overflow: hidden;
+}
+
+.visible-dot {
+  display: flex !important;
+}
+
+.animated-item-dot {
+  position: relative;
+}
+
+p.subtitle {
+  color: var(--second-color);
+  margin: 0;
+  font-family: Gill Sans, Gill Sans MT, Calibri, Trebuchet MS, sans-serif;
+  font-size: 1.4rem;
+}
+
+div.title {
+  height: auto;
+  color: #fff;
+  font-size: 100px;
+}
+
+p.description {
+  color: var(--focus-color);
+  margin: 0;
+  font-family: Trebuchet MS, Lucida Sans Unicode, Lucida Grande;
+}
+
+p.intro-footer {
+  width: -moz-fit-content;
+  width: fit-content;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0;
+  display: flex;
+}
+
+/*# sourceMappingURL=index.61d3354a.css.map */
