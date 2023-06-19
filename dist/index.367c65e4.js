@@ -612,12 +612,12 @@ let DOM_RENDER_ITEMS = [];
 let bloomPass;
 const bloomConfig = {
     resolution: new _three.Vector2(window.innerWidth, window.innerHeight),
-    strength: 2,
-    radius: 1.3,
+    strength: 1.7,
+    radius: .9,
     threshold: 0
 };
 //setup external links
-const portalModel = new URL(require("2d3a0f971e600ba2"));
+const portalModel = new URL(require("fe483abcf8b5f275"));
 const background = new URL(require("76f054369dcc67e9"));
 //DOM ref
 const START_BUTTOM = document.getElementById("start");
@@ -729,7 +729,7 @@ function Set3dScene() {
     LoadPortal(); //load the princiapl model
 }
 function Setup3DObjects() {
-    camera.position.set(0, 0, 350);
+    camera.position.set(0, 0, 325);
 }
 function createADot(width, height, x, y, z) {
     const obj = `
@@ -753,37 +753,42 @@ function createADot(width, height, x, y, z) {
 function LoadPortal() {
     modelLoader.load(portalModel.href, (gltf)=>{
         const portal = gltf.scene;
-        //  console.log(portal);
+        console.log(portal);
         ///ad model
-        mainScene.add(portal);
         portal.children[0].scale.set(10, 10, 10);
+        mainScene.add(portal);
         //set first position
         portal.position.set(100, 0, 0);
         const childs = portal.children[0].children;
         let i = 0;
-        //console.log(childs[0].material);
-        for(; i < childs.length; i++){
-            const mediumColor = new _three.Color();
-            const main = new _three.Color(0x4db7fe);
-            const second = new _three.Color(0x99f0ff);
-            mediumColor.lerpColors(main, second, 0.5);
-            if (i <= 11) {
-                childs[i].material.emissive = main;
-                childs[i].material.color = main;
-            }
-            if (i > 18) {
-                childs[i].material.emissive = second;
-                childs[i].material.color = second;
-            }
-            if (i > 11 && i <= 18) {
-                childs[i].material.emissive = mediumColor;
-                childs[i].material.color = mediumColor;
-                childs[i].material.emissiveIntensity = 6;
-            }
-            childs[i].material.transparent = false;
-            childs[i].material._alphaTest = .7;
-        }
-    //console.log(portal)
+    //console.log(childs[0].material);
+    /*
+    for (; i < childs.length; i++) {
+      const mediumColor = new THREE.Color();
+
+      const main = new THREE.Color(0x4db7fe);
+      const second = new THREE.Color(0x99f0ff);
+
+      mediumColor.lerpColors(main, second, 0.5);
+
+      if (i <= 11) {
+        childs[i].material.emissive = main;
+        childs[i].material.color = main;
+      }
+      if (i > 18) {
+        childs[i].material.emissive = second;
+        childs[i].material.color = second;
+      }
+      if (i > 11 && i <= 18) {
+        childs[i].material.emissive = mediumColor;
+        childs[i].material.color = mediumColor;
+        childs[i].material.emissiveIntensity = 6;
+      }
+      childs[i].material.transparent = false
+      childs[i].material._alphaTest = .7
+    }
+
+    */ //console.log(portal)
     });
 }
 function SetListeners() {
@@ -863,7 +868,7 @@ function VisibleControls() {
     });
 }
 
-},{"three":"ktPTu","three/examples/jsm/controls/OrbitControls":"7mqRv","three/examples/jsm/loaders/GLTFLoader":"dVRsF","three/examples/jsm/loaders/RGBELoader":"cfP3d","three/examples/jsm/postprocessing/EffectComposer":"e5jie","three/examples/jsm/postprocessing/RenderPass":"hXnUO","three/examples/jsm/postprocessing/UnrealBloomPass":"3iDYE","..//src/text-anim":"bpRzV","three/examples/jsm/renderers/css3drenderer":"gmEI9","dat.gui":"k3xQk","76f054369dcc67e9":"83LuI","2d3a0f971e600ba2":"awgpT"}],"ktPTu":[function(require,module,exports) {
+},{"three":"ktPTu","three/examples/jsm/controls/OrbitControls":"7mqRv","three/examples/jsm/loaders/GLTFLoader":"dVRsF","three/examples/jsm/loaders/RGBELoader":"cfP3d","three/examples/jsm/postprocessing/EffectComposer":"e5jie","three/examples/jsm/postprocessing/RenderPass":"hXnUO","three/examples/jsm/postprocessing/UnrealBloomPass":"3iDYE","..//src/text-anim":"bpRzV","three/examples/jsm/renderers/css3drenderer":"gmEI9","dat.gui":"k3xQk","76f054369dcc67e9":"83LuI","fe483abcf8b5f275":"5wYkH"}],"ktPTu":[function(require,module,exports) {
 /**
  * @license
  * Copyright 2010-2023 Three.js Authors
@@ -38099,9 +38104,9 @@ exports.getBundleURL = getBundleURLCached;
 exports.getBaseURL = getBaseURL;
 exports.getOrigin = getOrigin;
 
-},{}],"awgpT":[function(require,module,exports) {
-module.exports = require("42ce0ef6fc2f447e").getBundleURL("fwMGY") + "portal_model.5a3ec000.glb" + "?" + Date.now();
+},{}],"5wYkH":[function(require,module,exports) {
+module.exports = require("949173c4f0e1c660").getBundleURL("fwMGY") + "model.20c1e957.glb" + "?" + Date.now();
 
-},{"42ce0ef6fc2f447e":"lgJ39"}]},["3joXF","6wY4T"], "6wY4T", "parcelRequire94c2")
+},{"949173c4f0e1c660":"lgJ39"}]},["3joXF","6wY4T"], "6wY4T", "parcelRequire94c2")
 
 //# sourceMappingURL=index.367c65e4.js.map
