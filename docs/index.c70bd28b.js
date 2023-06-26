@@ -142,13 +142,13 @@
       this[globalName] = mainExports;
     }
   }
-})({"3joXF":[function(require,module,exports) {
+})({"8cBfp":[function(require,module,exports) {
 var global = arguments[3];
 var HMR_HOST = null;
 var HMR_PORT = null;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "d6ea1d42532a7575";
-module.bundle.HMR_BUNDLE_ID = "b4df9d6d367c65e4";
+module.bundle.HMR_BUNDLE_ID = "bfe4005ec70bd28b";
 "use strict";
 /* global HMR_HOST, HMR_PORT, HMR_ENV_HASH, HMR_SECURE, chrome, browser, __parcel__import__, __parcel__importScripts__, ServiceWorkerGlobalScope */ /*::
 import type {
@@ -573,388 +573,81 @@ function hmrAccept(bundle /*: ParcelRequire */ , id /*: string */ ) {
     });
 }
 
-},{}],"6wY4T":[function(require,module,exports) {
+},{}],"cGn8b":[function(require,module,exports) {
+//three.js [main api]
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 var _three = require("three");
-var _orbitControls = require("three/examples/jsm/controls/OrbitControls");
-//loaders
-var _gltfloader = require("three/examples/jsm/loaders/GLTFLoader");
-var _rgbeloader = require("three/examples/jsm/loaders/RGBELoader");
-//postproecsing
-var _effectComposer = require("three/examples/jsm/postprocessing/EffectComposer");
-var _renderPass = require("three/examples/jsm/postprocessing/RenderPass");
-var _unrealBloomPass = require("three/examples/jsm/postprocessing/UnrealBloomPass");
-var _textAnim = require("..//src/text-anim");
-//modeo loader ext
+//dom renderer
+var _css3Drenderer = require("three/examples/jsm/renderers/css3drenderer");
+///CUSTOM APIS
+//post procesing api
+var _postProcesing = require("./PostProcesing");
+var _postProcesingDefault = parcelHelpers.interopDefault(_postProcesing);
+//model api
 var _modelLoader = require("..//src/model_loader");
 var _modelLoaderDefault = parcelHelpers.interopDefault(_modelLoader);
-var _postProcesing = require("..//src/PostProcesing");
-var _postProcesingDefault = parcelHelpers.interopDefault(_postProcesing);
-//raycasting dom elements
-var _domManager = require("./DomManager");
-var _domManagerDefault = parcelHelpers.interopDefault(_domManager);
-//sound effects
-var _audioControllerJs = require("..//src/audio-controller.js");
-var _audioControllerJsDefault = parcelHelpers.interopDefault(_audioControllerJs);
+//IMPORT EXTERNAL FILES  [MEDIA]
+const portalUrl = new URL(require("336cc69287c8fe46"));
+///MAIN SCENE VARIABLES
+//the camera :D
+const camera = new _three.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+//scenes
+const webScene = new _three.Scene(); //3d scene
+const domScene = new _three.Scene(); //dom scene
 //renderers
-var _css3Drenderer = require("three/examples/jsm/renderers/css3drenderer");
-//data aux tools
-var _datGui = require("dat.gui");
-//auxiliar perfonce tools
-const gui = new _datGui.GUI();
-//point in map
-const _SECTOR_POINTS = {
-    seccionA: new _three.Vector3(0, -300, 80)
-};
-//EFFECTS
-const soundManager = new (0, _audioControllerJsDefault.default)();
-//setup global aux variables
-const SIZE = {
-    x: window.innerWidth,
-    y: window.innerHeight,
-    aspectRatio: window.innerWidth / window.innerHeight
-};
-const CAM_NEAR = 0.1;
-const CAM_FAR = 1000;
-let PORTAL_SPEED = 0.0002;
-let PORTAL_CHILDREN_SPEED = 0.0001;
-let cursor;
-let isMouseMoving = false;
-let isBegin = false;
-let mainComposer; //set postprocesing
-let PORTAL_REF;
-let ANIMATION_CONTROLLER;
-let loadedAnimation = false;
-let escenaRenderizada = false;
-let DOM_RENDER_ITEMS = [];
-let bloomPass;
-const bloomConfig = {
-    resolution: new _three.Vector2(window.innerWidth, window.innerHeight),
-    strength: 1.7,
-    radius: 0.9,
-    threshold: 0
-};
-//animations
-let mixer;
-//point in scene
-let _DOTS_LIST = [];
-//lerp de la camara
-let actualCameraLerp;
-//setup external links
-const portalModel = new URL(require("3ae531851fff9dc2"));
-const background = new URL(require("76f054369dcc67e9"));
-//load portal model
-const modelInstance = new (0, _modelLoaderDefault.default)(portalModel.href);
-//DOM ref
-const START_BUTTOM = document.getElementById("start");
-const INTRO_REF = document.getElementById("intro");
-//setup global variables
-const camera = new _three.PerspectiveCamera(45, SIZE.aspectRatio, CAM_NEAR, CAM_FAR);
-const domScene = new _three.Scene();
-const mainScene = new _three.Scene();
-const clock = new _three.Clock();
-const modelLoader = new (0, _gltfloader.GLTFLoader)();
-let isSectionActive = false;
-//setup scene background
-const backgroundLoader = new (0, _rgbeloader.RGBELoader)();
-backgroundLoader.load(background, function(texture) {
-//mainScene.background = texture;
-});
-//setup renderers
+const webRenderer = new _three.WebGLRenderer();
 const domRenderer = new (0, _css3Drenderer.CSS3DRenderer)();
-const mainRenderer = new _three.WebGLRenderer({
-    antialias: true,
-    powerPreference: "high-performance"
-});
-domRenderer.setSize(SIZE.x, SIZE.y);
-mainRenderer.setSize(SIZE.x, SIZE.y);
-//setup cuality
-//setup perfonce
-mainRenderer.setPixelRatio(window.devicePixelRatio);
-mainRenderer.setPixelRatio(window.devicePixelRatio * 0.5);
-//setup color
-mainRenderer.outputColorSpace = _three.SRGBColorSpace;
-//setup renderers to DOM
-domRenderer.domElement.style.position = "absolute";
-domRenderer.domElement.style.top = 0;
-//set elements her to be visible
-domRenderer.domElement.style.visibility = "visible";
-document.body.appendChild(domRenderer.domElement);
-document.body.appendChild(mainRenderer.domElement);
-//setup auxiliar controls
-const orbitControls = new (0, _orbitControls.OrbitControls)(camera, domRenderer.domElement);
-//setup raycasting
-const domManager = new (0, _domManagerDefault.default)(camera);
-//setup EXPERIENCE
-Set3dScene();
-//setup listeners
-SetListeners();
-//setup dom elements in scene
-createADot(280, 120, 0, -95, 30);
-//setup visible params
-//SetupPostProcesing();
-const postProcesingManager = new (0, _postProcesingDefault.default)(camera, mainScene, mainRenderer);
+///AUX VARIABLES
+const PORTAL_INSTANCE = {
+    model: null,
+    scene: null,
+    instance: new (0, _modelLoaderDefault.default)(portalUrl.href)
+};
+///SETUP 3D SCENE
+SetupRenderers();
+StartScenes();
+///RENDER EXPERIENCE
 RenderExperience();
-VisibleControls();
-function RenderExperience() {
-    //set loop
-    requestAnimationFrame(RenderExperience);
-    LoopScene(tick().time, tick().delta);
-    if (mixer) mixer.update(tick().delta);
-    //set scene
-    domRenderer.render(domScene, camera);
-    postProcesingManager.render();
-//mainComposer.render(mainScene, camera);
-}
-function LoopScene(time, delta) {
-    //set parallax
-    if (time > 1 && !escenaRenderizada) {
-        console.log("escena cargado");
-        //mostrar el texto al dom
-        //setear la pantalla del intro visible
-        INTRO_REF.style.display = "flex";
-        (0, _textAnim.ShowTextAnimation)(".animated-item");
-        escenaRenderizada = true;
-    }
-    //movimiento de la camara de forma relativa
-    const parallax = new _three.Vector3(cursor.x, -cursor.y, camera.position.z);
-    if (isMouseMoving && !isSectionActive) {
-        //set the parallax effect
-        console.log(isMouseMoving);
-        actualCameraLerp = parallax;
-    //animations
-    }
-    //mover  hacie la escena
-    if (isSectionActive) {
-        console.log("mover hacia la seccion");
-        _SECTOR_POINTS.seccionA.x = +parallax.x * .1;
-        //_SECTOR_POINTS.seccionA.z = _SECTOR_POINTS.seccionA.z + parallax
-        //x 0 y -300 z =30
-        //console.log(_SECTOR_POINTS.seccionA.z)
-        actualCameraLerp = _SECTOR_POINTS.seccionA;
-    }
-    camera.position.lerp(actualCameraLerp, 0.02);
+///AUXILIAR FUNTIONS
+function StartScenes() {
+    //setup camera
+    camera.position.z = 6;
     camera.lookAt(0, 0, 0);
-    //set portal animation
-    //set portal model ref
-    if (PORTAL_REF) {
-        if (isBegin) {
-            //PORTAL_SPEED = PORTAL_SPEED + (0.1 - PORTAL_SPEED) * 0.01;
-            //PORTAL_REF.rotation.x =+PORTAL_REF.rotation.x + (-0.5 - PORTAL_REF.rotation.x) * 0.1;
-            //set animations
-            /*
-      ANIMATION_CONTROLLER = LoadAnimations(portalModel);
-      console.log(ANIMATION_CONTROLLER)
-      const clip = THREE.AnimationClip.findByName(ANIMATION_CONTROLLER.clips, "mainSpin");
-      const action = ANIMATION_CONTROLLER.mixer.clipAction(clip);
-      action.play();
-      
-
-      */ console.log("moviendo portal");
-            PORTAL_REF.position.x = PORTAL_REF.position.x + (0 - PORTAL_REF.position.x) * 0.03;
-            //set principal animation
-            if (Math.round(PORTAL_REF.position.x) <= 0) {
-                console.log("PORTAL DETENIDO");
-                isBegin = false;
-            }
-        }
-    }
-    //set childs look to camera
-    if (domScene.children[0]) domScene.children[0].lookAt(camera.position);
+    LoadPortal();
 }
-function Set3dScene() {
-    const numParticles = 1000; // Número de partículas a crear
-    addParticles(mainScene, numParticles, 300);
-    Setup3DObjects(); //set main parameters of the ob
-    LoadPortal(); //load the princiapl model
+function SetupRenderers() {
+    ///SETUP RENDERERS
+    /// 3D scene dom render
+    webRenderer.setSize(window.innerWidth, window.innerHeight);
+    webRenderer.setPixelRatio(window.devicePixelRatio);
+    //
+    webRenderer.outputColorSpace = _three.SRGBColorSpace;
+    //
+    document.body.appendChild(webRenderer.domElement);
+    ///DOM scene render
+    domRenderer.setSize(window.innerWidth, window.innerHeight);
+    //
+    domRenderer.domElement.style.position = "absolute";
+    domRenderer.domElement.style.top = 0;
+    domRenderer.domElement.style.visibility = "visible";
+    //
+    document.body.appendChild(domRenderer.domElement);
 }
-function Setup3DObjects() {
-    camera.position.set(0, 0, 325);
-}
-function createADot(width, height, x, y, z) {
-    const obj = `
-    <h4 class="animated-item-dot">lorem</h4>
-    <h3 class="animated-item-dot">Lorem, ipsum dolor.</h3>
-    <img class = "animated-item-dot" width="96" height="96" src="https://img.icons8.com/nolan/96/brain.png" alt="brain"/>
-    `;
-    const element = document.createElement("div");
-    element.classList.add("dot", "dot-animated-conteiner");
-    element.innerHTML = obj;
-    element.style.width = width + "px";
-    //element.style.height = height + "px";
-    //element.style.background = cssColor;emissi
-    const object = new (0, _css3Drenderer.CSS3DObject)(element);
-    object.scale.set(0.4, 0.4, 0.4);
-    object.position.set(x, y, z);
-    //create a 3d object in space fro dot
-    //then move this to the other functio
-    const boxCollider = new _three.Mesh(new _three.BoxGeometry(40, 20), new _three.MeshBasicMaterial({
-        transparent: true,
-        opacity: 0
-    }));
-    //agregar elemento a la lista
-    boxCollider.position.copy(object.position);
-    //agregar referencia a las lista para raycasting
-    _DOTS_LIST.push(boxCollider);
-    //agregarlo a la escena
-    mainScene.add(boxCollider);
-    domScene.add(object);
-    //agregar elemento al array
-    DOM_RENDER_ITEMS.push(object);
-}
+//LOAD PORTAL
 async function LoadPortal() {
-    //esperar por el modelo
-    PORTAL_REF = await modelInstance.modelo;
-    //setup initial parameters
-    PORTAL_REF.scale.set(10, 10, 10);
-    PORTAL_REF.position.set(100, 0, 0);
-    mainScene.add(PORTAL_REF);
-//set first position
+    PORTAL_INSTANCE.model = await PORTAL_INSTANCE.instance.modelo;
+    webScene.add(PORTAL_INSTANCE.model);
+    PORTAL_INSTANCE.model.position.set(0, 0, 0);
+    PORTAL_INSTANCE.model.scale.set(2, 2, 2);
 }
-function SetListeners() {
-    //when ouse is moving
-    let lastItem;
-    //encargado de multiples accciones
-    //movimiento relativo al mouse
-    //deteccion de elementos en dom
-    window.addEventListener("pointermove", (event)=>{
-        isMouseMoving = true;
-        const intensity = 150;
-        cursor = {
-            x: (event.clientX / SIZE.x - 0.5) * intensity,
-            y: (event.clientY / SIZE.y - 0.5) * intensity
-        };
-        //set mouse detection [DOM ELEMENTS]
-        domManager.setRayPosition(event);
-        const selected = domManager.castElementFrom(_DOTS_LIST);
-        let wasPLayed = false;
-        if (domManager.isHoverOn()) {
-            const color = new _three.Color("red");
-            selected.object.material.color = color;
-            lastItem = selected;
-            //reproducir sonido al pasar por el objeto
-            if (!wasPLayed) soundManager.playSelectionAudio();
-        } else if (lastItem) {
-            wasPLayed = false;
-            const color = new _three.Color("white");
-            lastItem.object.material.color = color;
-        }
-    });
-    window.addEventListener("click", (event)=>{
-        if (domManager.isHoverOn()) {
-            isSectionActive = true;
-            console.log("sobre un objeto y activo");
-        } else {
-            isSectionActive = false;
-            console.log("no hay nada seleccionado");
-        }
-    });
-    //set first portal position
-    //iniicia la animacion principal
-    START_BUTTOM.addEventListener("click", ()=>{
-        isBegin = true;
-        //DOM ANIMATIONS
-        //ESCONDER EL TEXTO DEL DOM
-        (0, _textAnim.HideTextAnimation)(".animated-item");
-        //reproducir audio DEBUG
-        soundManager.playSelectionAudio();
-        soundManager.playBackgroundAudio();
-        //mostrar elementos del DOM_RENDERER
-        //esperar hasta que el cuadro cierre
-        //NO ES LO MAS OPTIMO
-        setTimeout(()=>{
-            //activa la transcicion de los puntos de la pagina
-            DOM_RENDER_ITEMS.forEach((dom_Item)=>dom_Item.element.classList.add("visible-dot"));
-            //animar los botones
-            (0, _textAnim.ShowTextAnimation)(".animated-item-dot");
-            console.log("animando dots");
-        }, 1500);
-    });
-}
-function SetupPostProcesing() {
-    //setup post procesing
-    const renderPass = new (0, _renderPass.RenderPass)(mainScene, camera);
-    mainComposer = new (0, _effectComposer.EffectComposer)(mainRenderer);
-    //setup bloom
-    bloomPass = new (0, _unrealBloomPass.UnrealBloomPass)(bloomConfig.resolution, bloomConfig.strength, bloomConfig.radius, bloomConfig.threshold);
-    mainComposer.addPass(renderPass);
-    mainComposer.addPass(bloomPass);
-}
-function LoadAnimations(model) {
-    //load animations one time
-    if (!loadedAnimation) {
-        loadedAnimation = true;
-        console.log(model);
-        const manager = {
-            mixer: new _three.AnimationMixer(model),
-            clips: model.animations
-        };
-        console.log(manager);
-        return manager;
-    }
-}
-function tick() {
-    const elapsedTime = clock.getElapsedTime();
-    const deltaTime = clock.getDelta();
-    return {
-        time: elapsedTime,
-        delta: deltaTime
-    };
-}
-function VisibleControls() {
-    gui.add(bloomConfig, "strength", 0, 10).name("Strength").onChange((value)=>{
-        bloomPass.strength = value;
-    });
-    gui.add(bloomConfig, "radius", 0, 10).name("Radius").onChange((value)=>{
-        bloomPass.radius = value;
-    });
-    gui.add(bloomConfig, "threshold", 0, 1).name("Threshold").onChange((value)=>{
-        bloomPass.threshold = value;
-    });
-    //camera constrols
-    // Crear un objeto para almacenar los valores
-    // Agregar los controles a la GUI
-    gui.add(camera.position, "x", -1000, 1000).name("X").onChange((value)=>{
-        camera.position.x = value;
-    });
-    gui.add(camera.position, "y", -1000, 1000).name("Y").onChange((value)=>{
-        camera.position.y = value;
-    });
-    gui.add(camera.position, "z", -1000, 1000).name("Z").onChange((value)=>{
-        camera.position.z = value;
-    });
-}
-//funcoin para actualizar camara
-function updateCameraPosition() {
-    camera.position.set(controls.x, controls.y, controls.z);
-}
-//particulas
-// Función para agregar partículas a la escena
-function addParticles(scene, numParticles, scale) {
-    // Crea el material de las partículas
-    const material = new _three.PointsMaterial({
-        size: 5,
-        color: 0xffffff // Color de las partículas
-    });
-    // Crea la geometría de las partículas
-    const geometry = new _three.BufferGeometry();
-    // Crea arrays para almacenar las posiciones de las partículas
-    const positions = new Float32Array(numParticles * 3);
-    // Llena el array de posiciones con valores aleatorios escalados
-    for(let i = 0; i < numParticles; i++){
-        const i3 = i * 3;
-        positions[i3] = (Math.random() * 2 - 1) * scale; // Coordenada x escalada
-        positions[i3 + 1] = (Math.random() * 2 - 1) * scale; // Coordenada y escalada
-        positions[i3 + 2] = (Math.random() * 2 - 1) * scale; // Coordenada z escalada
-    }
-    // Añade los datos de posición a la geometría
-    geometry.setAttribute("position", new _three.BufferAttribute(positions, 3));
-    // Crea el objeto de partículas y añádelo a la escena
-    const particles = new _three.Points(geometry, material);
-    scene.add(particles);
+//render all scene
+function RenderExperience() {
+    //set render
+    //domRenderer.render(domScene, camera)
+    webRenderer.render(webScene, camera);
 }
 
-},{"three":"ktPTu","three/examples/jsm/controls/OrbitControls":"7mqRv","three/examples/jsm/loaders/GLTFLoader":"dVRsF","three/examples/jsm/loaders/RGBELoader":"cfP3d","three/examples/jsm/postprocessing/EffectComposer":"e5jie","three/examples/jsm/postprocessing/RenderPass":"hXnUO","three/examples/jsm/postprocessing/UnrealBloomPass":"3iDYE","..//src/text-anim":"bpRzV","..//src/model_loader":"gaVEv","..//src/PostProcesing":"9mulx","./DomManager":"lwjwC","..//src/audio-controller.js":"gF6CA","three/examples/jsm/renderers/css3drenderer":"gmEI9","dat.gui":"k3xQk","3ae531851fff9dc2":"6uDDT","76f054369dcc67e9":"83LuI","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"ktPTu":[function(require,module,exports) {
+},{"three":"ktPTu","three/examples/jsm/renderers/css3drenderer":"gmEI9","..//src/model_loader":"gaVEv","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./PostProcesing":"9mulx","336cc69287c8fe46":"6deNw"}],"ktPTu":[function(require,module,exports) {
 /**
  * @license
  * Copyright 2010-2023 Three.js Authors
@@ -31032,683 +30725,214 @@ exports.export = function(dest, destName, get) {
     });
 };
 
-},{}],"7mqRv":[function(require,module,exports) {
+},{}],"gmEI9":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "OrbitControls", ()=>OrbitControls);
+parcelHelpers.export(exports, "CSS3DObject", ()=>CSS3DObject);
+parcelHelpers.export(exports, "CSS3DSprite", ()=>CSS3DSprite);
+parcelHelpers.export(exports, "CSS3DRenderer", ()=>CSS3DRenderer);
 var _three = require("three");
-// OrbitControls performs orbiting, dollying (zooming), and panning.
-// Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
-//
-//    Orbit - left mouse / touch: one-finger move
-//    Zoom - middle mouse, or mousewheel / touch: two-finger spread or squish
-//    Pan - right mouse, or left mouse + ctrl/meta/shiftKey, or arrow keys / touch: two-finger move
-const _changeEvent = {
-    type: "change"
-};
-const _startEvent = {
-    type: "start"
-};
-const _endEvent = {
-    type: "end"
-};
-class OrbitControls extends (0, _three.EventDispatcher) {
-    constructor(object, domElement){
+/**
+ * Based on http://www.emagix.net/academic/mscs-project/item/camera-sync-with-css3-and-webgl-threejs
+ */ const _position = new (0, _three.Vector3)();
+const _quaternion = new (0, _three.Quaternion)();
+const _scale = new (0, _three.Vector3)();
+class CSS3DObject extends (0, _three.Object3D) {
+    constructor(element = document.createElement("div")){
         super();
-        this.object = object;
-        this.domElement = domElement;
-        this.domElement.style.touchAction = "none"; // disable touch scroll
-        // Set to false to disable this control
-        this.enabled = true;
-        // "target" sets the location of focus, where the object orbits around
-        this.target = new (0, _three.Vector3)();
-        // How far you can dolly in and out ( PerspectiveCamera only )
-        this.minDistance = 0;
-        this.maxDistance = Infinity;
-        // How far you can zoom in and out ( OrthographicCamera only )
-        this.minZoom = 0;
-        this.maxZoom = Infinity;
-        // How far you can orbit vertically, upper and lower limits.
-        // Range is 0 to Math.PI radians.
-        this.minPolarAngle = 0; // radians
-        this.maxPolarAngle = Math.PI; // radians
-        // How far you can orbit horizontally, upper and lower limits.
-        // If set, the interval [ min, max ] must be a sub-interval of [ - 2 PI, 2 PI ], with ( max - min < 2 PI )
-        this.minAzimuthAngle = -Infinity; // radians
-        this.maxAzimuthAngle = Infinity; // radians
-        // Set to true to enable damping (inertia)
-        // If damping is enabled, you must call controls.update() in your animation loop
-        this.enableDamping = false;
-        this.dampingFactor = 0.05;
-        // This option actually enables dollying in and out; left as "zoom" for backwards compatibility.
-        // Set to false to disable zooming
-        this.enableZoom = true;
-        this.zoomSpeed = 1.0;
-        // Set to false to disable rotating
-        this.enableRotate = true;
-        this.rotateSpeed = 1.0;
-        // Set to false to disable panning
-        this.enablePan = true;
-        this.panSpeed = 1.0;
-        this.screenSpacePanning = true; // if false, pan orthogonal to world-space direction camera.up
-        this.keyPanSpeed = 7.0; // pixels moved per arrow key push
-        // Set to true to automatically rotate around the target
-        // If auto-rotate is enabled, you must call controls.update() in your animation loop
-        this.autoRotate = false;
-        this.autoRotateSpeed = 2.0; // 30 seconds per orbit when fps is 60
-        // The four arrow keys
-        this.keys = {
-            LEFT: "ArrowLeft",
-            UP: "ArrowUp",
-            RIGHT: "ArrowRight",
-            BOTTOM: "ArrowDown"
-        };
-        // Mouse buttons
-        this.mouseButtons = {
-            LEFT: (0, _three.MOUSE).ROTATE,
-            MIDDLE: (0, _three.MOUSE).DOLLY,
-            RIGHT: (0, _three.MOUSE).PAN
-        };
-        // Touch fingers
-        this.touches = {
-            ONE: (0, _three.TOUCH).ROTATE,
-            TWO: (0, _three.TOUCH).DOLLY_PAN
-        };
-        // for reset
-        this.target0 = this.target.clone();
-        this.position0 = this.object.position.clone();
-        this.zoom0 = this.object.zoom;
-        // the target DOM element for key events
-        this._domElementKeyEvents = null;
-        //
-        // public methods
-        //
-        this.getPolarAngle = function() {
-            return spherical.phi;
-        };
-        this.getAzimuthalAngle = function() {
-            return spherical.theta;
-        };
-        this.getDistance = function() {
-            return this.object.position.distanceTo(this.target);
-        };
-        this.listenToKeyEvents = function(domElement) {
-            domElement.addEventListener("keydown", onKeyDown);
-            this._domElementKeyEvents = domElement;
-        };
-        this.stopListenToKeyEvents = function() {
-            this._domElementKeyEvents.removeEventListener("keydown", onKeyDown);
-            this._domElementKeyEvents = null;
-        };
-        this.saveState = function() {
-            scope.target0.copy(scope.target);
-            scope.position0.copy(scope.object.position);
-            scope.zoom0 = scope.object.zoom;
-        };
-        this.reset = function() {
-            scope.target.copy(scope.target0);
-            scope.object.position.copy(scope.position0);
-            scope.object.zoom = scope.zoom0;
-            scope.object.updateProjectionMatrix();
-            scope.dispatchEvent(_changeEvent);
-            scope.update();
-            state = STATE.NONE;
-        };
-        // this method is exposed, but perhaps it would be better if we can make it private...
-        this.update = function() {
-            const offset = new (0, _three.Vector3)();
-            // so camera.up is the orbit axis
-            const quat = new (0, _three.Quaternion)().setFromUnitVectors(object.up, new (0, _three.Vector3)(0, 1, 0));
-            const quatInverse = quat.clone().invert();
-            const lastPosition = new (0, _three.Vector3)();
-            const lastQuaternion = new (0, _three.Quaternion)();
-            const lastTargetPosition = new (0, _three.Vector3)();
-            const twoPI = 2 * Math.PI;
-            return function update() {
-                const position = scope.object.position;
-                offset.copy(position).sub(scope.target);
-                // rotate offset to "y-axis-is-up" space
-                offset.applyQuaternion(quat);
-                // angle from z-axis around y-axis
-                spherical.setFromVector3(offset);
-                if (scope.autoRotate && state === STATE.NONE) rotateLeft(getAutoRotationAngle());
-                if (scope.enableDamping) {
-                    spherical.theta += sphericalDelta.theta * scope.dampingFactor;
-                    spherical.phi += sphericalDelta.phi * scope.dampingFactor;
-                } else {
-                    spherical.theta += sphericalDelta.theta;
-                    spherical.phi += sphericalDelta.phi;
-                }
-                // restrict theta to be between desired limits
-                let min = scope.minAzimuthAngle;
-                let max = scope.maxAzimuthAngle;
-                if (isFinite(min) && isFinite(max)) {
-                    if (min < -Math.PI) min += twoPI;
-                    else if (min > Math.PI) min -= twoPI;
-                    if (max < -Math.PI) max += twoPI;
-                    else if (max > Math.PI) max -= twoPI;
-                    if (min <= max) spherical.theta = Math.max(min, Math.min(max, spherical.theta));
-                    else spherical.theta = spherical.theta > (min + max) / 2 ? Math.max(min, spherical.theta) : Math.min(max, spherical.theta);
-                }
-                // restrict phi to be between desired limits
-                spherical.phi = Math.max(scope.minPolarAngle, Math.min(scope.maxPolarAngle, spherical.phi));
-                spherical.makeSafe();
-                spherical.radius *= scale;
-                // restrict radius to be between desired limits
-                spherical.radius = Math.max(scope.minDistance, Math.min(scope.maxDistance, spherical.radius));
-                // move target to panned location
-                if (scope.enableDamping === true) scope.target.addScaledVector(panOffset, scope.dampingFactor);
-                else scope.target.add(panOffset);
-                offset.setFromSpherical(spherical);
-                // rotate offset back to "camera-up-vector-is-up" space
-                offset.applyQuaternion(quatInverse);
-                position.copy(scope.target).add(offset);
-                scope.object.lookAt(scope.target);
-                if (scope.enableDamping === true) {
-                    sphericalDelta.theta *= 1 - scope.dampingFactor;
-                    sphericalDelta.phi *= 1 - scope.dampingFactor;
-                    panOffset.multiplyScalar(1 - scope.dampingFactor);
-                } else {
-                    sphericalDelta.set(0, 0, 0);
-                    panOffset.set(0, 0, 0);
-                }
-                scale = 1;
-                // update condition is:
-                // min(camera displacement, camera rotation in radians)^2 > EPS
-                // using small-angle approximation cos(x/2) = 1 - x^2 / 8
-                if (zoomChanged || lastPosition.distanceToSquared(scope.object.position) > EPS || 8 * (1 - lastQuaternion.dot(scope.object.quaternion)) > EPS || lastTargetPosition.distanceToSquared(scope.target) > 0) {
-                    scope.dispatchEvent(_changeEvent);
-                    lastPosition.copy(scope.object.position);
-                    lastQuaternion.copy(scope.object.quaternion);
-                    lastTargetPosition.copy(scope.target);
-                    zoomChanged = false;
-                    return true;
-                }
-                return false;
-            };
-        }();
-        this.dispose = function() {
-            scope.domElement.removeEventListener("contextmenu", onContextMenu);
-            scope.domElement.removeEventListener("pointerdown", onPointerDown);
-            scope.domElement.removeEventListener("pointercancel", onPointerUp);
-            scope.domElement.removeEventListener("wheel", onMouseWheel);
-            scope.domElement.removeEventListener("pointermove", onPointerMove);
-            scope.domElement.removeEventListener("pointerup", onPointerUp);
-            if (scope._domElementKeyEvents !== null) {
-                scope._domElementKeyEvents.removeEventListener("keydown", onKeyDown);
-                scope._domElementKeyEvents = null;
-            }
-        //scope.dispatchEvent( { type: 'dispose' } ); // should this be added here?
-        };
-        //
-        // internals
-        //
-        const scope = this;
-        const STATE = {
-            NONE: -1,
-            ROTATE: 0,
-            DOLLY: 1,
-            PAN: 2,
-            TOUCH_ROTATE: 3,
-            TOUCH_PAN: 4,
-            TOUCH_DOLLY_PAN: 5,
-            TOUCH_DOLLY_ROTATE: 6
-        };
-        let state = STATE.NONE;
-        const EPS = 0.000001;
-        // current position in spherical coordinates
-        const spherical = new (0, _three.Spherical)();
-        const sphericalDelta = new (0, _three.Spherical)();
-        let scale = 1;
-        const panOffset = new (0, _three.Vector3)();
-        let zoomChanged = false;
-        const rotateStart = new (0, _three.Vector2)();
-        const rotateEnd = new (0, _three.Vector2)();
-        const rotateDelta = new (0, _three.Vector2)();
-        const panStart = new (0, _three.Vector2)();
-        const panEnd = new (0, _three.Vector2)();
-        const panDelta = new (0, _three.Vector2)();
-        const dollyStart = new (0, _three.Vector2)();
-        const dollyEnd = new (0, _three.Vector2)();
-        const dollyDelta = new (0, _three.Vector2)();
-        const pointers = [];
-        const pointerPositions = {};
-        function getAutoRotationAngle() {
-            return 2 * Math.PI / 60 / 60 * scope.autoRotateSpeed;
-        }
-        function getZoomScale() {
-            return Math.pow(0.95, scope.zoomSpeed);
-        }
-        function rotateLeft(angle) {
-            sphericalDelta.theta -= angle;
-        }
-        function rotateUp(angle) {
-            sphericalDelta.phi -= angle;
-        }
-        const panLeft = function() {
-            const v = new (0, _three.Vector3)();
-            return function panLeft(distance, objectMatrix) {
-                v.setFromMatrixColumn(objectMatrix, 0); // get X column of objectMatrix
-                v.multiplyScalar(-distance);
-                panOffset.add(v);
-            };
-        }();
-        const panUp = function() {
-            const v = new (0, _three.Vector3)();
-            return function panUp(distance, objectMatrix) {
-                if (scope.screenSpacePanning === true) v.setFromMatrixColumn(objectMatrix, 1);
-                else {
-                    v.setFromMatrixColumn(objectMatrix, 0);
-                    v.crossVectors(scope.object.up, v);
-                }
-                v.multiplyScalar(distance);
-                panOffset.add(v);
-            };
-        }();
-        // deltaX and deltaY are in pixels; right and down are positive
-        const pan = function() {
-            const offset = new (0, _three.Vector3)();
-            return function pan(deltaX, deltaY) {
-                const element = scope.domElement;
-                if (scope.object.isPerspectiveCamera) {
-                    // perspective
-                    const position = scope.object.position;
-                    offset.copy(position).sub(scope.target);
-                    let targetDistance = offset.length();
-                    // half of the fov is center to top of screen
-                    targetDistance *= Math.tan(scope.object.fov / 2 * Math.PI / 180.0);
-                    // we use only clientHeight here so aspect ratio does not distort speed
-                    panLeft(2 * deltaX * targetDistance / element.clientHeight, scope.object.matrix);
-                    panUp(2 * deltaY * targetDistance / element.clientHeight, scope.object.matrix);
-                } else if (scope.object.isOrthographicCamera) {
-                    // orthographic
-                    panLeft(deltaX * (scope.object.right - scope.object.left) / scope.object.zoom / element.clientWidth, scope.object.matrix);
-                    panUp(deltaY * (scope.object.top - scope.object.bottom) / scope.object.zoom / element.clientHeight, scope.object.matrix);
-                } else {
-                    // camera neither orthographic nor perspective
-                    console.warn("WARNING: OrbitControls.js encountered an unknown camera type - pan disabled.");
-                    scope.enablePan = false;
-                }
-            };
-        }();
-        function dollyOut(dollyScale) {
-            if (scope.object.isPerspectiveCamera) scale /= dollyScale;
-            else if (scope.object.isOrthographicCamera) {
-                scope.object.zoom = Math.max(scope.minZoom, Math.min(scope.maxZoom, scope.object.zoom * dollyScale));
-                scope.object.updateProjectionMatrix();
-                zoomChanged = true;
-            } else {
-                console.warn("WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.");
-                scope.enableZoom = false;
-            }
-        }
-        function dollyIn(dollyScale) {
-            if (scope.object.isPerspectiveCamera) scale *= dollyScale;
-            else if (scope.object.isOrthographicCamera) {
-                scope.object.zoom = Math.max(scope.minZoom, Math.min(scope.maxZoom, scope.object.zoom / dollyScale));
-                scope.object.updateProjectionMatrix();
-                zoomChanged = true;
-            } else {
-                console.warn("WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.");
-                scope.enableZoom = false;
-            }
-        }
-        //
-        // event callbacks - update the object state
-        //
-        function handleMouseDownRotate(event) {
-            rotateStart.set(event.clientX, event.clientY);
-        }
-        function handleMouseDownDolly(event) {
-            dollyStart.set(event.clientX, event.clientY);
-        }
-        function handleMouseDownPan(event) {
-            panStart.set(event.clientX, event.clientY);
-        }
-        function handleMouseMoveRotate(event) {
-            rotateEnd.set(event.clientX, event.clientY);
-            rotateDelta.subVectors(rotateEnd, rotateStart).multiplyScalar(scope.rotateSpeed);
-            const element = scope.domElement;
-            rotateLeft(2 * Math.PI * rotateDelta.x / element.clientHeight); // yes, height
-            rotateUp(2 * Math.PI * rotateDelta.y / element.clientHeight);
-            rotateStart.copy(rotateEnd);
-            scope.update();
-        }
-        function handleMouseMoveDolly(event) {
-            dollyEnd.set(event.clientX, event.clientY);
-            dollyDelta.subVectors(dollyEnd, dollyStart);
-            if (dollyDelta.y > 0) dollyOut(getZoomScale());
-            else if (dollyDelta.y < 0) dollyIn(getZoomScale());
-            dollyStart.copy(dollyEnd);
-            scope.update();
-        }
-        function handleMouseMovePan(event) {
-            panEnd.set(event.clientX, event.clientY);
-            panDelta.subVectors(panEnd, panStart).multiplyScalar(scope.panSpeed);
-            pan(panDelta.x, panDelta.y);
-            panStart.copy(panEnd);
-            scope.update();
-        }
-        function handleMouseWheel(event) {
-            if (event.deltaY < 0) dollyIn(getZoomScale());
-            else if (event.deltaY > 0) dollyOut(getZoomScale());
-            scope.update();
-        }
-        function handleKeyDown(event) {
-            let needsUpdate = false;
-            switch(event.code){
-                case scope.keys.UP:
-                    if (event.ctrlKey || event.metaKey || event.shiftKey) rotateUp(2 * Math.PI * scope.rotateSpeed / scope.domElement.clientHeight);
-                    else pan(0, scope.keyPanSpeed);
-                    needsUpdate = true;
-                    break;
-                case scope.keys.BOTTOM:
-                    if (event.ctrlKey || event.metaKey || event.shiftKey) rotateUp(-2 * Math.PI * scope.rotateSpeed / scope.domElement.clientHeight);
-                    else pan(0, -scope.keyPanSpeed);
-                    needsUpdate = true;
-                    break;
-                case scope.keys.LEFT:
-                    if (event.ctrlKey || event.metaKey || event.shiftKey) rotateLeft(2 * Math.PI * scope.rotateSpeed / scope.domElement.clientHeight);
-                    else pan(scope.keyPanSpeed, 0);
-                    needsUpdate = true;
-                    break;
-                case scope.keys.RIGHT:
-                    if (event.ctrlKey || event.metaKey || event.shiftKey) rotateLeft(-2 * Math.PI * scope.rotateSpeed / scope.domElement.clientHeight);
-                    else pan(-scope.keyPanSpeed, 0);
-                    needsUpdate = true;
-                    break;
-            }
-            if (needsUpdate) {
-                // prevent the browser from scrolling on cursor keys
-                event.preventDefault();
-                scope.update();
-            }
-        }
-        function handleTouchStartRotate() {
-            if (pointers.length === 1) rotateStart.set(pointers[0].pageX, pointers[0].pageY);
-            else {
-                const x = 0.5 * (pointers[0].pageX + pointers[1].pageX);
-                const y = 0.5 * (pointers[0].pageY + pointers[1].pageY);
-                rotateStart.set(x, y);
-            }
-        }
-        function handleTouchStartPan() {
-            if (pointers.length === 1) panStart.set(pointers[0].pageX, pointers[0].pageY);
-            else {
-                const x = 0.5 * (pointers[0].pageX + pointers[1].pageX);
-                const y = 0.5 * (pointers[0].pageY + pointers[1].pageY);
-                panStart.set(x, y);
-            }
-        }
-        function handleTouchStartDolly() {
-            const dx = pointers[0].pageX - pointers[1].pageX;
-            const dy = pointers[0].pageY - pointers[1].pageY;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            dollyStart.set(0, distance);
-        }
-        function handleTouchStartDollyPan() {
-            if (scope.enableZoom) handleTouchStartDolly();
-            if (scope.enablePan) handleTouchStartPan();
-        }
-        function handleTouchStartDollyRotate() {
-            if (scope.enableZoom) handleTouchStartDolly();
-            if (scope.enableRotate) handleTouchStartRotate();
-        }
-        function handleTouchMoveRotate(event) {
-            if (pointers.length == 1) rotateEnd.set(event.pageX, event.pageY);
-            else {
-                const position = getSecondPointerPosition(event);
-                const x = 0.5 * (event.pageX + position.x);
-                const y = 0.5 * (event.pageY + position.y);
-                rotateEnd.set(x, y);
-            }
-            rotateDelta.subVectors(rotateEnd, rotateStart).multiplyScalar(scope.rotateSpeed);
-            const element = scope.domElement;
-            rotateLeft(2 * Math.PI * rotateDelta.x / element.clientHeight); // yes, height
-            rotateUp(2 * Math.PI * rotateDelta.y / element.clientHeight);
-            rotateStart.copy(rotateEnd);
-        }
-        function handleTouchMovePan(event) {
-            if (pointers.length === 1) panEnd.set(event.pageX, event.pageY);
-            else {
-                const position = getSecondPointerPosition(event);
-                const x = 0.5 * (event.pageX + position.x);
-                const y = 0.5 * (event.pageY + position.y);
-                panEnd.set(x, y);
-            }
-            panDelta.subVectors(panEnd, panStart).multiplyScalar(scope.panSpeed);
-            pan(panDelta.x, panDelta.y);
-            panStart.copy(panEnd);
-        }
-        function handleTouchMoveDolly(event) {
-            const position = getSecondPointerPosition(event);
-            const dx = event.pageX - position.x;
-            const dy = event.pageY - position.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            dollyEnd.set(0, distance);
-            dollyDelta.set(0, Math.pow(dollyEnd.y / dollyStart.y, scope.zoomSpeed));
-            dollyOut(dollyDelta.y);
-            dollyStart.copy(dollyEnd);
-        }
-        function handleTouchMoveDollyPan(event) {
-            if (scope.enableZoom) handleTouchMoveDolly(event);
-            if (scope.enablePan) handleTouchMovePan(event);
-        }
-        function handleTouchMoveDollyRotate(event) {
-            if (scope.enableZoom) handleTouchMoveDolly(event);
-            if (scope.enableRotate) handleTouchMoveRotate(event);
-        }
-        //
-        // event handlers - FSM: listen for events and reset state
-        //
-        function onPointerDown(event) {
-            if (scope.enabled === false) return;
-            if (pointers.length === 0) {
-                scope.domElement.setPointerCapture(event.pointerId);
-                scope.domElement.addEventListener("pointermove", onPointerMove);
-                scope.domElement.addEventListener("pointerup", onPointerUp);
-            }
-            //
-            addPointer(event);
-            if (event.pointerType === "touch") onTouchStart(event);
-            else onMouseDown(event);
-        }
-        function onPointerMove(event) {
-            if (scope.enabled === false) return;
-            if (event.pointerType === "touch") onTouchMove(event);
-            else onMouseMove(event);
-        }
-        function onPointerUp(event) {
-            removePointer(event);
-            if (pointers.length === 0) {
-                scope.domElement.releasePointerCapture(event.pointerId);
-                scope.domElement.removeEventListener("pointermove", onPointerMove);
-                scope.domElement.removeEventListener("pointerup", onPointerUp);
-            }
-            scope.dispatchEvent(_endEvent);
-            state = STATE.NONE;
-        }
-        function onMouseDown(event) {
-            let mouseAction;
-            switch(event.button){
-                case 0:
-                    mouseAction = scope.mouseButtons.LEFT;
-                    break;
-                case 1:
-                    mouseAction = scope.mouseButtons.MIDDLE;
-                    break;
-                case 2:
-                    mouseAction = scope.mouseButtons.RIGHT;
-                    break;
-                default:
-                    mouseAction = -1;
-            }
-            switch(mouseAction){
-                case (0, _three.MOUSE).DOLLY:
-                    if (scope.enableZoom === false) return;
-                    handleMouseDownDolly(event);
-                    state = STATE.DOLLY;
-                    break;
-                case (0, _three.MOUSE).ROTATE:
-                    if (event.ctrlKey || event.metaKey || event.shiftKey) {
-                        if (scope.enablePan === false) return;
-                        handleMouseDownPan(event);
-                        state = STATE.PAN;
-                    } else {
-                        if (scope.enableRotate === false) return;
-                        handleMouseDownRotate(event);
-                        state = STATE.ROTATE;
-                    }
-                    break;
-                case (0, _three.MOUSE).PAN:
-                    if (event.ctrlKey || event.metaKey || event.shiftKey) {
-                        if (scope.enableRotate === false) return;
-                        handleMouseDownRotate(event);
-                        state = STATE.ROTATE;
-                    } else {
-                        if (scope.enablePan === false) return;
-                        handleMouseDownPan(event);
-                        state = STATE.PAN;
-                    }
-                    break;
-                default:
-                    state = STATE.NONE;
-            }
-            if (state !== STATE.NONE) scope.dispatchEvent(_startEvent);
-        }
-        function onMouseMove(event) {
-            switch(state){
-                case STATE.ROTATE:
-                    if (scope.enableRotate === false) return;
-                    handleMouseMoveRotate(event);
-                    break;
-                case STATE.DOLLY:
-                    if (scope.enableZoom === false) return;
-                    handleMouseMoveDolly(event);
-                    break;
-                case STATE.PAN:
-                    if (scope.enablePan === false) return;
-                    handleMouseMovePan(event);
-                    break;
-            }
-        }
-        function onMouseWheel(event) {
-            if (scope.enabled === false || scope.enableZoom === false || state !== STATE.NONE) return;
-            event.preventDefault();
-            scope.dispatchEvent(_startEvent);
-            handleMouseWheel(event);
-            scope.dispatchEvent(_endEvent);
-        }
-        function onKeyDown(event) {
-            if (scope.enabled === false || scope.enablePan === false) return;
-            handleKeyDown(event);
-        }
-        function onTouchStart(event) {
-            trackPointer(event);
-            switch(pointers.length){
-                case 1:
-                    switch(scope.touches.ONE){
-                        case (0, _three.TOUCH).ROTATE:
-                            if (scope.enableRotate === false) return;
-                            handleTouchStartRotate();
-                            state = STATE.TOUCH_ROTATE;
-                            break;
-                        case (0, _three.TOUCH).PAN:
-                            if (scope.enablePan === false) return;
-                            handleTouchStartPan();
-                            state = STATE.TOUCH_PAN;
-                            break;
-                        default:
-                            state = STATE.NONE;
-                    }
-                    break;
-                case 2:
-                    switch(scope.touches.TWO){
-                        case (0, _three.TOUCH).DOLLY_PAN:
-                            if (scope.enableZoom === false && scope.enablePan === false) return;
-                            handleTouchStartDollyPan();
-                            state = STATE.TOUCH_DOLLY_PAN;
-                            break;
-                        case (0, _three.TOUCH).DOLLY_ROTATE:
-                            if (scope.enableZoom === false && scope.enableRotate === false) return;
-                            handleTouchStartDollyRotate();
-                            state = STATE.TOUCH_DOLLY_ROTATE;
-                            break;
-                        default:
-                            state = STATE.NONE;
-                    }
-                    break;
-                default:
-                    state = STATE.NONE;
-            }
-            if (state !== STATE.NONE) scope.dispatchEvent(_startEvent);
-        }
-        function onTouchMove(event) {
-            trackPointer(event);
-            switch(state){
-                case STATE.TOUCH_ROTATE:
-                    if (scope.enableRotate === false) return;
-                    handleTouchMoveRotate(event);
-                    scope.update();
-                    break;
-                case STATE.TOUCH_PAN:
-                    if (scope.enablePan === false) return;
-                    handleTouchMovePan(event);
-                    scope.update();
-                    break;
-                case STATE.TOUCH_DOLLY_PAN:
-                    if (scope.enableZoom === false && scope.enablePan === false) return;
-                    handleTouchMoveDollyPan(event);
-                    scope.update();
-                    break;
-                case STATE.TOUCH_DOLLY_ROTATE:
-                    if (scope.enableZoom === false && scope.enableRotate === false) return;
-                    handleTouchMoveDollyRotate(event);
-                    scope.update();
-                    break;
-                default:
-                    state = STATE.NONE;
-            }
-        }
-        function onContextMenu(event) {
-            if (scope.enabled === false) return;
-            event.preventDefault();
-        }
-        function addPointer(event) {
-            pointers.push(event);
-        }
-        function removePointer(event) {
-            delete pointerPositions[event.pointerId];
-            for(let i = 0; i < pointers.length; i++)if (pointers[i].pointerId == event.pointerId) {
-                pointers.splice(i, 1);
-                return;
-            }
-        }
-        function trackPointer(event) {
-            let position = pointerPositions[event.pointerId];
-            if (position === undefined) {
-                position = new (0, _three.Vector2)();
-                pointerPositions[event.pointerId] = position;
-            }
-            position.set(event.pageX, event.pageY);
-        }
-        function getSecondPointerPosition(event) {
-            const pointer = event.pointerId === pointers[0].pointerId ? pointers[1] : pointers[0];
-            return pointerPositions[pointer.pointerId];
-        }
-        //
-        scope.domElement.addEventListener("contextmenu", onContextMenu);
-        scope.domElement.addEventListener("pointerdown", onPointerDown);
-        scope.domElement.addEventListener("pointercancel", onPointerUp);
-        scope.domElement.addEventListener("wheel", onMouseWheel, {
-            passive: false
+        this.isCSS3DObject = true;
+        this.element = element;
+        this.element.style.position = "absolute";
+        this.element.style.pointerEvents = "auto";
+        this.element.style.userSelect = "none";
+        this.element.setAttribute("draggable", false);
+        this.addEventListener("removed", function() {
+            this.traverse(function(object) {
+                if (object.element instanceof Element && object.element.parentNode !== null) object.element.parentNode.removeChild(object.element);
+            });
         });
-        // force an update at start
-        this.update();
+    }
+    copy(source, recursive) {
+        super.copy(source, recursive);
+        this.element = source.element.cloneNode(true);
+        return this;
+    }
+}
+class CSS3DSprite extends CSS3DObject {
+    constructor(element){
+        super(element);
+        this.isCSS3DSprite = true;
+        this.rotation2D = 0;
+    }
+    copy(source, recursive) {
+        super.copy(source, recursive);
+        this.rotation2D = source.rotation2D;
+        return this;
+    }
+}
+//
+const _matrix = new (0, _three.Matrix4)();
+const _matrix2 = new (0, _three.Matrix4)();
+class CSS3DRenderer {
+    constructor(parameters = {}){
+        const _this = this;
+        let _width, _height;
+        let _widthHalf, _heightHalf;
+        const cache = {
+            camera: {
+                fov: 0,
+                style: ""
+            },
+            objects: new WeakMap()
+        };
+        const domElement = parameters.element !== undefined ? parameters.element : document.createElement("div");
+        domElement.style.overflow = "hidden";
+        this.domElement = domElement;
+        const viewElement = document.createElement("div");
+        viewElement.style.transformOrigin = "0 0";
+        viewElement.style.pointerEvents = "none";
+        domElement.appendChild(viewElement);
+        const cameraElement = document.createElement("div");
+        cameraElement.style.transformStyle = "preserve-3d";
+        viewElement.appendChild(cameraElement);
+        this.getSize = function() {
+            return {
+                width: _width,
+                height: _height
+            };
+        };
+        this.render = function(scene, camera) {
+            const fov = camera.projectionMatrix.elements[5] * _heightHalf;
+            if (cache.camera.fov !== fov) {
+                viewElement.style.perspective = camera.isPerspectiveCamera ? fov + "px" : "";
+                cache.camera.fov = fov;
+            }
+            if (camera.view && camera.view.enabled) {
+                // view offset
+                viewElement.style.transform = `translate( ${-camera.view.offsetX * (_width / camera.view.width)}px, ${-camera.view.offsetY * (_height / camera.view.height)}px )`;
+                // view fullWidth and fullHeight, view width and height
+                viewElement.style.transform += `scale( ${camera.view.fullWidth / camera.view.width}, ${camera.view.fullHeight / camera.view.height} )`;
+            } else viewElement.style.transform = "";
+            if (scene.matrixWorldAutoUpdate === true) scene.updateMatrixWorld();
+            if (camera.parent === null && camera.matrixWorldAutoUpdate === true) camera.updateMatrixWorld();
+            let tx, ty;
+            if (camera.isOrthographicCamera) {
+                tx = -(camera.right + camera.left) / 2;
+                ty = (camera.top + camera.bottom) / 2;
+            }
+            const scaleByViewOffset = camera.view && camera.view.enabled ? camera.view.height / camera.view.fullHeight : 1;
+            const cameraCSSMatrix = camera.isOrthographicCamera ? `scale( ${scaleByViewOffset} )` + "scale(" + fov + ")" + "translate(" + epsilon(tx) + "px," + epsilon(ty) + "px)" + getCameraCSSMatrix(camera.matrixWorldInverse) : `scale( ${scaleByViewOffset} )` + "translateZ(" + fov + "px)" + getCameraCSSMatrix(camera.matrixWorldInverse);
+            const style = cameraCSSMatrix + "translate(" + _widthHalf + "px," + _heightHalf + "px)";
+            if (cache.camera.style !== style) {
+                cameraElement.style.transform = style;
+                cache.camera.style = style;
+            }
+            renderObject(scene, scene, camera, cameraCSSMatrix);
+        };
+        this.setSize = function(width, height) {
+            _width = width;
+            _height = height;
+            _widthHalf = _width / 2;
+            _heightHalf = _height / 2;
+            domElement.style.width = width + "px";
+            domElement.style.height = height + "px";
+            viewElement.style.width = width + "px";
+            viewElement.style.height = height + "px";
+            cameraElement.style.width = width + "px";
+            cameraElement.style.height = height + "px";
+        };
+        function epsilon(value) {
+            return Math.abs(value) < 1e-10 ? 0 : value;
+        }
+        function getCameraCSSMatrix(matrix) {
+            const elements = matrix.elements;
+            return "matrix3d(" + epsilon(elements[0]) + "," + epsilon(-elements[1]) + "," + epsilon(elements[2]) + "," + epsilon(elements[3]) + "," + epsilon(elements[4]) + "," + epsilon(-elements[5]) + "," + epsilon(elements[6]) + "," + epsilon(elements[7]) + "," + epsilon(elements[8]) + "," + epsilon(-elements[9]) + "," + epsilon(elements[10]) + "," + epsilon(elements[11]) + "," + epsilon(elements[12]) + "," + epsilon(-elements[13]) + "," + epsilon(elements[14]) + "," + epsilon(elements[15]) + ")";
+        }
+        function getObjectCSSMatrix(matrix) {
+            const elements = matrix.elements;
+            const matrix3d = "matrix3d(" + epsilon(elements[0]) + "," + epsilon(elements[1]) + "," + epsilon(elements[2]) + "," + epsilon(elements[3]) + "," + epsilon(-elements[4]) + "," + epsilon(-elements[5]) + "," + epsilon(-elements[6]) + "," + epsilon(-elements[7]) + "," + epsilon(elements[8]) + "," + epsilon(elements[9]) + "," + epsilon(elements[10]) + "," + epsilon(elements[11]) + "," + epsilon(elements[12]) + "," + epsilon(elements[13]) + "," + epsilon(elements[14]) + "," + epsilon(elements[15]) + ")";
+            return "translate(-50%,-50%)" + matrix3d;
+        }
+        function renderObject(object, scene, camera, cameraCSSMatrix) {
+            if (object.isCSS3DObject) {
+                const visible = object.visible === true && object.layers.test(camera.layers) === true;
+                object.element.style.display = visible === true ? "" : "none";
+                if (visible === true) {
+                    object.onBeforeRender(_this, scene, camera);
+                    let style;
+                    if (object.isCSS3DSprite) {
+                        // http://swiftcoder.wordpress.com/2008/11/25/constructing-a-billboard-matrix/
+                        _matrix.copy(camera.matrixWorldInverse);
+                        _matrix.transpose();
+                        if (object.rotation2D !== 0) _matrix.multiply(_matrix2.makeRotationZ(object.rotation2D));
+                        object.matrixWorld.decompose(_position, _quaternion, _scale);
+                        _matrix.setPosition(_position);
+                        _matrix.scale(_scale);
+                        _matrix.elements[3] = 0;
+                        _matrix.elements[7] = 0;
+                        _matrix.elements[11] = 0;
+                        _matrix.elements[15] = 1;
+                        style = getObjectCSSMatrix(_matrix);
+                    } else style = getObjectCSSMatrix(object.matrixWorld);
+                    const element = object.element;
+                    const cachedObject = cache.objects.get(object);
+                    if (cachedObject === undefined || cachedObject.style !== style) {
+                        element.style.transform = style;
+                        const objectData = {
+                            style: style
+                        };
+                        cache.objects.set(object, objectData);
+                    }
+                    if (element.parentNode !== cameraElement) cameraElement.appendChild(element);
+                    object.onAfterRender(_this, scene, camera);
+                }
+            }
+            for(let i = 0, l = object.children.length; i < l; i++)renderObject(object.children[i], scene, camera, cameraCSSMatrix);
+        }
     }
 }
 
-},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dVRsF":[function(require,module,exports) {
+},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gaVEv":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _gltfloader = require("three/examples/jsm/loaders/GLTFLoader");
+//lobal variables
+let modelo;
+const loader = new (0, _gltfloader.GLTFLoader)();
+class ModelInstance {
+    //load model
+    //set global variables
+    constructor(modelUrl){
+        //load model
+        this.modelo = cargarModelo(modelUrl);
+    }
+}
+//AUXILIAR FUNTIONS
+//setup main funtion
+async function cargarModelo(url) {
+    try {
+        //esperar por el modelo
+        modelo = await loader.loadAsync(url);
+        // Accede al modelo cargado
+        const modeloObjeto = modelo.scene;
+        //cargar animaciones
+        LoadClipAnimations(modelo);
+        console.log("Modelo Cargado", modeloObjeto);
+        return modeloObjeto;
+    // ... código adicional para configurar y mostrar el modelo ...
+    } catch (error) {
+        // Ocurrió un error al cargar el modelo
+        console.error("Error al cargar el modelo:", error);
+    }
+}
+//export all clips
+function LoadClipAnimations(scene) {
+    if (scene.animations) return scene.animations;
+}
+//export instance
+exports.default = ModelInstance;
+
+},{"three/examples/jsm/loaders/GLTFLoader":"dVRsF","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dVRsF":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "GLTFLoader", ()=>GLTFLoader);
@@ -34711,627 +33935,68 @@ function mergeBufferAttributes(attributes) {
     return mergeAttributes(attributes);
 }
 
-},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cfP3d":[function(require,module,exports) {
+},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"9mulx":[function(require,module,exports) {
+//auxiliar methods
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "RGBELoader", ()=>RGBELoader);
+var _unrealBloomPass = require("three/examples/jsm/postprocessing/UnrealBloomPass");
+var _effectComposer = require("three/examples/jsm/postprocessing/EffectComposer");
+var _renderPass = require("three/examples/jsm/postprocessing/RenderPass");
 var _three = require("three");
-// https://github.com/mrdoob/three.js/issues/5552
-// http://en.wikipedia.org/wiki/RGBE_image_format
-class RGBELoader extends (0, _three.DataTextureLoader) {
-    constructor(manager){
-        super(manager);
-        this.type = (0, _three.HalfFloatType);
-    }
-    // adapted from http://www.graphics.cornell.edu/~bjw/rgbe.html
-    parse(buffer) {
-        const /* return codes for rgbe routines */ //RGBE_RETURN_SUCCESS = 0,
-        RGBE_RETURN_FAILURE = -1, /* default error routine.  change this to change error handling */ rgbe_read_error = 1, rgbe_write_error = 2, rgbe_format_error = 3, rgbe_memory_error = 4, rgbe_error = function(rgbe_error_code, msg) {
-            switch(rgbe_error_code){
-                case rgbe_read_error:
-                    console.error("THREE.RGBELoader Read Error: " + (msg || ""));
-                    break;
-                case rgbe_write_error:
-                    console.error("THREE.RGBELoader Write Error: " + (msg || ""));
-                    break;
-                case rgbe_format_error:
-                    console.error("THREE.RGBELoader Bad File Format: " + (msg || ""));
-                    break;
-                default:
-                case rgbe_memory_error:
-                    console.error("THREE.RGBELoader: Error: " + (msg || ""));
-            }
-            return RGBE_RETURN_FAILURE;
-        }, /* offsets to red, green, and blue components in a data (float) pixel */ //RGBE_DATA_RED = 0,
-        //RGBE_DATA_GREEN = 1,
-        //RGBE_DATA_BLUE = 2,
-        /* number of floats per pixel, use 4 since stored in rgba image format */ //RGBE_DATA_SIZE = 4,
-        /* flags indicating which fields in an rgbe_header_info are valid */ RGBE_VALID_PROGRAMTYPE = 1, RGBE_VALID_FORMAT = 2, RGBE_VALID_DIMENSIONS = 4, NEWLINE = "\n", fgets = function(buffer, lineLimit, consume) {
-            const chunkSize = 128;
-            lineLimit = !lineLimit ? 1024 : lineLimit;
-            let p = buffer.pos, i = -1, len = 0, s = "", chunk = String.fromCharCode.apply(null, new Uint16Array(buffer.subarray(p, p + chunkSize)));
-            while(0 > (i = chunk.indexOf(NEWLINE)) && len < lineLimit && p < buffer.byteLength){
-                s += chunk;
-                len += chunk.length;
-                p += chunkSize;
-                chunk += String.fromCharCode.apply(null, new Uint16Array(buffer.subarray(p, p + chunkSize)));
-            }
-            if (-1 < i) {
-                /*for (i=l-1; i>=0; i--) {
-						byteCode = m.charCodeAt(i);
-						if (byteCode > 0x7f && byteCode <= 0x7ff) byteLen++;
-						else if (byteCode > 0x7ff && byteCode <= 0xffff) byteLen += 2;
-						if (byteCode >= 0xDC00 && byteCode <= 0xDFFF) i--; //trail surrogate
-					}*/ if (false !== consume) buffer.pos += len + i + 1;
-                return s + chunk.slice(0, i);
-            }
-            return false;
-        }, /* minimal header reading.  modify if you want to parse more information */ RGBE_ReadHeader = function(buffer) {
-            // regexes to parse header info fields
-            const magic_token_re = /^#\?(\S+)/, gamma_re = /^\s*GAMMA\s*=\s*(\d+(\.\d+)?)\s*$/, exposure_re = /^\s*EXPOSURE\s*=\s*(\d+(\.\d+)?)\s*$/, format_re = /^\s*FORMAT=(\S+)\s*$/, dimensions_re = /^\s*\-Y\s+(\d+)\s+\+X\s+(\d+)\s*$/, // RGBE format header struct
-            header = {
-                valid: 0,
-                /* indicate which fields are valid */ string: "",
-                /* the actual header string */ comments: "",
-                /* comments found in header */ programtype: "RGBE",
-                /* listed at beginning of file to identify it after "#?". defaults to "RGBE" */ format: "",
-                /* RGBE format, default 32-bit_rle_rgbe */ gamma: 1.0,
-                /* image has already been gamma corrected with given gamma. defaults to 1.0 (no correction) */ exposure: 1.0,
-                /* a value of 1.0 in an image corresponds to <exposure> watts/steradian/m^2. defaults to 1.0 */ width: 0,
-                height: 0 /* image dimensions, width/height */ 
-            };
-            let line, match;
-            if (buffer.pos >= buffer.byteLength || !(line = fgets(buffer))) return rgbe_error(rgbe_read_error, "no header found");
-            /* if you want to require the magic token then uncomment the next line */ if (!(match = line.match(magic_token_re))) return rgbe_error(rgbe_format_error, "bad initial token");
-            header.valid |= RGBE_VALID_PROGRAMTYPE;
-            header.programtype = match[1];
-            header.string += line + "\n";
-            while(true){
-                line = fgets(buffer);
-                if (false === line) break;
-                header.string += line + "\n";
-                if ("#" === line.charAt(0)) {
-                    header.comments += line + "\n";
-                    continue; // comment line
-                }
-                if (match = line.match(gamma_re)) header.gamma = parseFloat(match[1]);
-                if (match = line.match(exposure_re)) header.exposure = parseFloat(match[1]);
-                if (match = line.match(format_re)) {
-                    header.valid |= RGBE_VALID_FORMAT;
-                    header.format = match[1]; //'32-bit_rle_rgbe';
-                }
-                if (match = line.match(dimensions_re)) {
-                    header.valid |= RGBE_VALID_DIMENSIONS;
-                    header.height = parseInt(match[1], 10);
-                    header.width = parseInt(match[2], 10);
-                }
-                if (header.valid & RGBE_VALID_FORMAT && header.valid & RGBE_VALID_DIMENSIONS) break;
-            }
-            if (!(header.valid & RGBE_VALID_FORMAT)) return rgbe_error(rgbe_format_error, "missing format specifier");
-            if (!(header.valid & RGBE_VALID_DIMENSIONS)) return rgbe_error(rgbe_format_error, "missing image size specifier");
-            return header;
-        }, RGBE_ReadPixels_RLE = function(buffer, w, h) {
-            const scanline_width = w;
-            if (scanline_width < 8 || scanline_width > 0x7fff || // this file is not run length encoded
-            2 !== buffer[0] || 2 !== buffer[1] || buffer[2] & 0x80) // return the flat buffer
-            return new Uint8Array(buffer);
-            if (scanline_width !== (buffer[2] << 8 | buffer[3])) return rgbe_error(rgbe_format_error, "wrong scanline width");
-            const data_rgba = new Uint8Array(4 * w * h);
-            if (!data_rgba.length) return rgbe_error(rgbe_memory_error, "unable to allocate buffer space");
-            let offset = 0, pos = 0;
-            const ptr_end = 4 * scanline_width;
-            const rgbeStart = new Uint8Array(4);
-            const scanline_buffer = new Uint8Array(ptr_end);
-            let num_scanlines = h;
-            // read in each successive scanline
-            while(num_scanlines > 0 && pos < buffer.byteLength){
-                if (pos + 4 > buffer.byteLength) return rgbe_error(rgbe_read_error);
-                rgbeStart[0] = buffer[pos++];
-                rgbeStart[1] = buffer[pos++];
-                rgbeStart[2] = buffer[pos++];
-                rgbeStart[3] = buffer[pos++];
-                if (2 != rgbeStart[0] || 2 != rgbeStart[1] || (rgbeStart[2] << 8 | rgbeStart[3]) != scanline_width) return rgbe_error(rgbe_format_error, "bad rgbe scanline format");
-                // read each of the four channels for the scanline into the buffer
-                // first red, then green, then blue, then exponent
-                let ptr = 0, count;
-                while(ptr < ptr_end && pos < buffer.byteLength){
-                    count = buffer[pos++];
-                    const isEncodedRun = count > 128;
-                    if (isEncodedRun) count -= 128;
-                    if (0 === count || ptr + count > ptr_end) return rgbe_error(rgbe_format_error, "bad scanline data");
-                    if (isEncodedRun) {
-                        // a (encoded) run of the same value
-                        const byteValue = buffer[pos++];
-                        for(let i = 0; i < count; i++)scanline_buffer[ptr++] = byteValue;
-                    //ptr += count;
-                    } else {
-                        // a literal-run
-                        scanline_buffer.set(buffer.subarray(pos, pos + count), ptr);
-                        ptr += count;
-                        pos += count;
-                    }
-                }
-                // now convert data from buffer into rgba
-                // first red, then green, then blue, then exponent (alpha)
-                const l = scanline_width; //scanline_buffer.byteLength;
-                for(let i = 0; i < l; i++){
-                    let off = 0;
-                    data_rgba[offset] = scanline_buffer[i + off];
-                    off += scanline_width; //1;
-                    data_rgba[offset + 1] = scanline_buffer[i + off];
-                    off += scanline_width; //1;
-                    data_rgba[offset + 2] = scanline_buffer[i + off];
-                    off += scanline_width; //1;
-                    data_rgba[offset + 3] = scanline_buffer[i + off];
-                    offset += 4;
-                }
-                num_scanlines--;
-            }
-            return data_rgba;
-        };
-        const RGBEByteToRGBFloat = function(sourceArray, sourceOffset, destArray, destOffset) {
-            const e = sourceArray[sourceOffset + 3];
-            const scale = Math.pow(2.0, e - 128.0) / 255.0;
-            destArray[destOffset + 0] = sourceArray[sourceOffset + 0] * scale;
-            destArray[destOffset + 1] = sourceArray[sourceOffset + 1] * scale;
-            destArray[destOffset + 2] = sourceArray[sourceOffset + 2] * scale;
-            destArray[destOffset + 3] = 1;
-        };
-        const RGBEByteToRGBHalf = function(sourceArray, sourceOffset, destArray, destOffset) {
-            const e = sourceArray[sourceOffset + 3];
-            const scale = Math.pow(2.0, e - 128.0) / 255.0;
-            // clamping to 65504, the maximum representable value in float16
-            destArray[destOffset + 0] = (0, _three.DataUtils).toHalfFloat(Math.min(sourceArray[sourceOffset + 0] * scale, 65504));
-            destArray[destOffset + 1] = (0, _three.DataUtils).toHalfFloat(Math.min(sourceArray[sourceOffset + 1] * scale, 65504));
-            destArray[destOffset + 2] = (0, _three.DataUtils).toHalfFloat(Math.min(sourceArray[sourceOffset + 2] * scale, 65504));
-            destArray[destOffset + 3] = (0, _three.DataUtils).toHalfFloat(1);
-        };
-        const byteArray = new Uint8Array(buffer);
-        byteArray.pos = 0;
-        const rgbe_header_info = RGBE_ReadHeader(byteArray);
-        if (RGBE_RETURN_FAILURE !== rgbe_header_info) {
-            const w = rgbe_header_info.width, h = rgbe_header_info.height, image_rgba_data = RGBE_ReadPixels_RLE(byteArray.subarray(byteArray.pos), w, h);
-            if (RGBE_RETURN_FAILURE !== image_rgba_data) {
-                let data, type;
-                let numElements;
-                switch(this.type){
-                    case 0, _three.FloatType:
-                        numElements = image_rgba_data.length / 4;
-                        const floatArray = new Float32Array(numElements * 4);
-                        for(let j = 0; j < numElements; j++)RGBEByteToRGBFloat(image_rgba_data, j * 4, floatArray, j * 4);
-                        data = floatArray;
-                        type = (0, _three.FloatType);
-                        break;
-                    case 0, _three.HalfFloatType:
-                        numElements = image_rgba_data.length / 4;
-                        const halfArray = new Uint16Array(numElements * 4);
-                        for(let j = 0; j < numElements; j++)RGBEByteToRGBHalf(image_rgba_data, j * 4, halfArray, j * 4);
-                        data = halfArray;
-                        type = (0, _three.HalfFloatType);
-                        break;
-                    default:
-                        console.error("THREE.RGBELoader: unsupported type: ", this.type);
-                        break;
-                }
-                return {
-                    width: w,
-                    height: h,
-                    data: data,
-                    header: rgbe_header_info.string,
-                    gamma: rgbe_header_info.gamma,
-                    exposure: rgbe_header_info.exposure,
-                    type: type
-                };
-            }
-        }
-        return null;
-    }
-    setDataType(value) {
-        this.type = value;
-        return this;
-    }
-    load(url, onLoad, onProgress, onError) {
-        function onLoadCallback(texture, texData) {
-            switch(texture.type){
-                case 0, _three.FloatType:
-                case 0, _three.HalfFloatType:
-                    texture.colorSpace = (0, _three.LinearSRGBColorSpace);
-                    texture.minFilter = (0, _three.LinearFilter);
-                    texture.magFilter = (0, _three.LinearFilter);
-                    texture.generateMipmaps = false;
-                    texture.flipY = true;
-                    break;
-            }
-            if (onLoad) onLoad(texture, texData);
-        }
-        return super.load(url, onLoadCallback, onProgress, onError);
-    }
-}
-
-},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"e5jie":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "EffectComposer", ()=>EffectComposer);
-var _three = require("three");
-var _copyShaderJs = require("../shaders/CopyShader.js");
-var _shaderPassJs = require("./ShaderPass.js");
-var _maskPassJs = require("./MaskPass.js");
-class EffectComposer {
-    constructor(renderer, renderTarget){
-        this.renderer = renderer;
-        this._pixelRatio = renderer.getPixelRatio();
-        if (renderTarget === undefined) {
-            const size = renderer.getSize(new (0, _three.Vector2)());
-            this._width = size.width;
-            this._height = size.height;
-            renderTarget = new (0, _three.WebGLRenderTarget)(this._width * this._pixelRatio, this._height * this._pixelRatio, {
-                type: (0, _three.HalfFloatType)
-            });
-            renderTarget.texture.name = "EffectComposer.rt1";
-        } else {
-            this._width = renderTarget.width;
-            this._height = renderTarget.height;
-        }
-        this.renderTarget1 = renderTarget;
-        this.renderTarget2 = renderTarget.clone();
-        this.renderTarget2.texture.name = "EffectComposer.rt2";
-        this.writeBuffer = this.renderTarget1;
-        this.readBuffer = this.renderTarget2;
-        this.renderToScreen = true;
-        this.passes = [];
-        this.copyPass = new (0, _shaderPassJs.ShaderPass)((0, _copyShaderJs.CopyShader));
-        this.clock = new (0, _three.Clock)();
-    }
-    swapBuffers() {
-        const tmp = this.readBuffer;
-        this.readBuffer = this.writeBuffer;
-        this.writeBuffer = tmp;
-    }
-    addPass(pass) {
-        this.passes.push(pass);
-        pass.setSize(this._width * this._pixelRatio, this._height * this._pixelRatio);
-    }
-    insertPass(pass, index) {
-        this.passes.splice(index, 0, pass);
-        pass.setSize(this._width * this._pixelRatio, this._height * this._pixelRatio);
-    }
-    removePass(pass) {
-        const index = this.passes.indexOf(pass);
-        if (index !== -1) this.passes.splice(index, 1);
-    }
-    isLastEnabledPass(passIndex) {
-        for(let i = passIndex + 1; i < this.passes.length; i++){
-            if (this.passes[i].enabled) return false;
-        }
-        return true;
-    }
-    render(deltaTime) {
-        // deltaTime value is in seconds
-        if (deltaTime === undefined) deltaTime = this.clock.getDelta();
-        const currentRenderTarget = this.renderer.getRenderTarget();
-        let maskActive = false;
-        for(let i = 0, il = this.passes.length; i < il; i++){
-            const pass = this.passes[i];
-            if (pass.enabled === false) continue;
-            pass.renderToScreen = this.renderToScreen && this.isLastEnabledPass(i);
-            pass.render(this.renderer, this.writeBuffer, this.readBuffer, deltaTime, maskActive);
-            if (pass.needsSwap) {
-                if (maskActive) {
-                    const context = this.renderer.getContext();
-                    const stencil = this.renderer.state.buffers.stencil;
-                    //context.stencilFunc( context.NOTEQUAL, 1, 0xffffffff );
-                    stencil.setFunc(context.NOTEQUAL, 1, 0xffffffff);
-                    this.copyPass.render(this.renderer, this.writeBuffer, this.readBuffer, deltaTime);
-                    //context.stencilFunc( context.EQUAL, 1, 0xffffffff );
-                    stencil.setFunc(context.EQUAL, 1, 0xffffffff);
-                }
-                this.swapBuffers();
-            }
-            if ((0, _maskPassJs.MaskPass) !== undefined) {
-                if (pass instanceof (0, _maskPassJs.MaskPass)) maskActive = true;
-                else if (pass instanceof (0, _maskPassJs.ClearMaskPass)) maskActive = false;
-            }
-        }
-        this.renderer.setRenderTarget(currentRenderTarget);
-    }
-    reset(renderTarget) {
-        if (renderTarget === undefined) {
-            const size = this.renderer.getSize(new (0, _three.Vector2)());
-            this._pixelRatio = this.renderer.getPixelRatio();
-            this._width = size.width;
-            this._height = size.height;
-            renderTarget = this.renderTarget1.clone();
-            renderTarget.setSize(this._width * this._pixelRatio, this._height * this._pixelRatio);
-        }
-        this.renderTarget1.dispose();
-        this.renderTarget2.dispose();
-        this.renderTarget1 = renderTarget;
-        this.renderTarget2 = renderTarget.clone();
-        this.writeBuffer = this.renderTarget1;
-        this.readBuffer = this.renderTarget2;
-    }
-    setSize(width, height) {
-        this._width = width;
-        this._height = height;
-        const effectiveWidth = this._width * this._pixelRatio;
-        const effectiveHeight = this._height * this._pixelRatio;
-        this.renderTarget1.setSize(effectiveWidth, effectiveHeight);
-        this.renderTarget2.setSize(effectiveWidth, effectiveHeight);
-        for(let i = 0; i < this.passes.length; i++)this.passes[i].setSize(effectiveWidth, effectiveHeight);
-    }
-    setPixelRatio(pixelRatio) {
-        this._pixelRatio = pixelRatio;
-        this.setSize(this._width, this._height);
-    }
-    dispose() {
-        this.renderTarget1.dispose();
-        this.renderTarget2.dispose();
-        this.copyPass.dispose();
-    }
-}
-
-},{"three":"ktPTu","../shaders/CopyShader.js":"d0PyX","./ShaderPass.js":"5IxTN","./MaskPass.js":"jn76N","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"d0PyX":[function(require,module,exports) {
-/**
- * Full-screen textured quad shader
- */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "CopyShader", ()=>CopyShader);
-const CopyShader = {
-    name: "CopyShader",
-    uniforms: {
-        "tDiffuse": {
-            value: null
-        },
-        "opacity": {
-            value: 1.0
-        }
-    },
-    vertexShader: /* glsl */ `
-
-		varying vec2 vUv;
-
-		void main() {
-
-			vUv = uv;
-			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-
-		}`,
-    fragmentShader: /* glsl */ `
-
-		uniform float opacity;
-
-		uniform sampler2D tDiffuse;
-
-		varying vec2 vUv;
-
-		void main() {
-
-			gl_FragColor = texture2D( tDiffuse, vUv );
-			gl_FragColor.a *= opacity;
-
-
-		}`
+//global variables
+//scene elements
+const _SCENE_PROPS = {
+    camera: null,
+    scene: null,
+    mainComposer: null
 };
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5IxTN":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "ShaderPass", ()=>ShaderPass);
-var _three = require("three");
-var _passJs = require("./Pass.js");
-class ShaderPass extends (0, _passJs.Pass) {
-    constructor(shader, textureID){
-        super();
-        this.textureID = textureID !== undefined ? textureID : "tDiffuse";
-        if (shader instanceof (0, _three.ShaderMaterial)) {
-            this.uniforms = shader.uniforms;
-            this.material = shader;
-        } else if (shader) {
-            this.uniforms = (0, _three.UniformsUtils).clone(shader.uniforms);
-            this.material = new (0, _three.ShaderMaterial)({
-                name: shader.name !== undefined ? shader.name : "unspecified",
-                defines: Object.assign({}, shader.defines),
-                uniforms: this.uniforms,
-                vertexShader: shader.vertexShader,
-                fragmentShader: shader.fragmentShader
-            });
-        }
-        this.fsQuad = new (0, _passJs.FullScreenQuad)(this.material);
+const _POST_PROCESING = {
+    bloomPass: BloomPass(),
+    renderPass: null
+};
+//main class funtions
+class PostProcesing {
+    constructor(camera, scene, renderer){
+        //setup components for postprocesing
+        _SCENE_PROPS.camera = camera;
+        _SCENE_PROPS.scene = scene;
+        //start effects for scene
+        _POST_PROCESING.renderPass = new (0, _renderPass.RenderPass)(scene, camera);
+        _SCENE_PROPS.mainComposer = new (0, _effectComposer.EffectComposer)(renderer);
+        //start post procesing elements
+        SetupPostProcesing(_SCENE_PROPS.scene, _SCENE_PROPS.camera);
     }
-    render(renderer, writeBuffer, readBuffer /*, deltaTime, maskActive */ ) {
-        if (this.uniforms[this.textureID]) this.uniforms[this.textureID].value = readBuffer.texture;
-        this.fsQuad.material = this.material;
-        if (this.renderToScreen) {
-            renderer.setRenderTarget(null);
-            this.fsQuad.render(renderer);
-        } else {
-            renderer.setRenderTarget(writeBuffer);
-            // TODO: Avoid using autoClear properties, see https://github.com/mrdoob/three.js/pull/15571#issuecomment-465669600
-            if (this.clear) renderer.clear(renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil);
-            this.fsQuad.render(renderer);
-        }
-    }
-    dispose() {
-        this.material.dispose();
-        this.fsQuad.dispose();
-    }
-}
-
-},{"three":"ktPTu","./Pass.js":"i2IfB","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"i2IfB":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Pass", ()=>Pass);
-parcelHelpers.export(exports, "FullScreenQuad", ()=>FullScreenQuad);
-var _three = require("three");
-class Pass {
-    constructor(){
-        this.isPass = true;
-        // if set to true, the pass is processed by the composer
-        this.enabled = true;
-        // if set to true, the pass indicates to swap read and write buffer after rendering
-        this.needsSwap = true;
-        // if set to true, the pass clears its buffer before rendering
-        this.clear = false;
-        // if set to true, the result of the pass is rendered to screen. This is set automatically by EffectComposer.
-        this.renderToScreen = false;
-    }
-    setSize() {}
+    //aplly all post procesing effects
+    //call every frame in loop
     render() {
-        console.error("THREE.Pass: .render() must be implemented in derived pass.");
-    }
-    dispose() {}
-}
-// Helper for passes that need to fill the viewport with a single quad.
-const _camera = new (0, _three.OrthographicCamera)(-1, 1, 1, -1, 0, 1);
-// https://github.com/mrdoob/three.js/pull/21358
-const _geometry = new (0, _three.BufferGeometry)();
-_geometry.setAttribute("position", new (0, _three.Float32BufferAttribute)([
-    -1,
-    3,
-    0,
-    -1,
-    -1,
-    0,
-    3,
-    -1,
-    0
-], 3));
-_geometry.setAttribute("uv", new (0, _three.Float32BufferAttribute)([
-    0,
-    2,
-    0,
-    0,
-    2,
-    0
-], 2));
-class FullScreenQuad {
-    constructor(material){
-        this._mesh = new (0, _three.Mesh)(_geometry, material);
-    }
-    dispose() {
-        this._mesh.geometry.dispose();
-    }
-    render(renderer) {
-        renderer.render(this._mesh, _camera);
-    }
-    get material() {
-        return this._mesh.material;
-    }
-    set material(value) {
-        this._mesh.material = value;
+        _SCENE_PROPS.mainComposer.render(_SCENE_PROPS.scene, _SCENE_PROPS.camera);
     }
 }
+//POST PROCESING EFFECTS
+//BLOOM!!
+function BloomPass() {
+    //params for bloom
+    const bloomConfig = {
+        resolution: new (0, _three.Vector2)(window.innerWidth, window.innerHeight),
+        strength: 1.7,
+        radius: 0.9,
+        threshold: 0
+    };
+    //setup bloom
+    const bloomPass = new (0, _unrealBloomPass.UnrealBloomPass)(bloomConfig.resolution, bloomConfig.strength, bloomConfig.radius, bloomConfig.threshold);
+    return bloomPass;
+}
+//start al post procesing effects
+function SetupPostProcesing() {
+    //set the main normal scene
+    _SCENE_PROPS.mainComposer.addPass(_POST_PROCESING.renderPass);
+    //setup bloom effect
+    _SCENE_PROPS.mainComposer.addPass(_POST_PROCESING.bloomPass);
+}
+//export
+exports.default = PostProcesing;
 
-},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jn76N":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "MaskPass", ()=>MaskPass);
-parcelHelpers.export(exports, "ClearMaskPass", ()=>ClearMaskPass);
-var _passJs = require("./Pass.js");
-class MaskPass extends (0, _passJs.Pass) {
-    constructor(scene, camera){
-        super();
-        this.scene = scene;
-        this.camera = camera;
-        this.clear = true;
-        this.needsSwap = false;
-        this.inverse = false;
-    }
-    render(renderer, writeBuffer, readBuffer /*, deltaTime, maskActive */ ) {
-        const context = renderer.getContext();
-        const state = renderer.state;
-        // don't update color or depth
-        state.buffers.color.setMask(false);
-        state.buffers.depth.setMask(false);
-        // lock buffers
-        state.buffers.color.setLocked(true);
-        state.buffers.depth.setLocked(true);
-        // set up stencil
-        let writeValue, clearValue;
-        if (this.inverse) {
-            writeValue = 0;
-            clearValue = 1;
-        } else {
-            writeValue = 1;
-            clearValue = 0;
-        }
-        state.buffers.stencil.setTest(true);
-        state.buffers.stencil.setOp(context.REPLACE, context.REPLACE, context.REPLACE);
-        state.buffers.stencil.setFunc(context.ALWAYS, writeValue, 0xffffffff);
-        state.buffers.stencil.setClear(clearValue);
-        state.buffers.stencil.setLocked(true);
-        // draw into the stencil buffer
-        renderer.setRenderTarget(readBuffer);
-        if (this.clear) renderer.clear();
-        renderer.render(this.scene, this.camera);
-        renderer.setRenderTarget(writeBuffer);
-        if (this.clear) renderer.clear();
-        renderer.render(this.scene, this.camera);
-        // unlock color and depth buffer for subsequent rendering
-        state.buffers.color.setLocked(false);
-        state.buffers.depth.setLocked(false);
-        // only render where stencil is set to 1
-        state.buffers.stencil.setLocked(false);
-        state.buffers.stencil.setFunc(context.EQUAL, 1, 0xffffffff); // draw if == 1
-        state.buffers.stencil.setOp(context.KEEP, context.KEEP, context.KEEP);
-        state.buffers.stencil.setLocked(true);
-    }
-}
-class ClearMaskPass extends (0, _passJs.Pass) {
-    constructor(){
-        super();
-        this.needsSwap = false;
-    }
-    render(renderer /*, writeBuffer, readBuffer, deltaTime, maskActive */ ) {
-        renderer.state.buffers.stencil.setLocked(false);
-        renderer.state.buffers.stencil.setTest(false);
-    }
-}
-
-},{"./Pass.js":"i2IfB","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hXnUO":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "RenderPass", ()=>RenderPass);
-var _three = require("three");
-var _passJs = require("./Pass.js");
-class RenderPass extends (0, _passJs.Pass) {
-    constructor(scene, camera, overrideMaterial, clearColor, clearAlpha){
-        super();
-        this.scene = scene;
-        this.camera = camera;
-        this.overrideMaterial = overrideMaterial;
-        this.clearColor = clearColor;
-        this.clearAlpha = clearAlpha !== undefined ? clearAlpha : 0;
-        this.clear = true;
-        this.clearDepth = false;
-        this.needsSwap = false;
-        this._oldClearColor = new (0, _three.Color)();
-    }
-    render(renderer, writeBuffer, readBuffer /*, deltaTime, maskActive */ ) {
-        const oldAutoClear = renderer.autoClear;
-        renderer.autoClear = false;
-        let oldClearAlpha, oldOverrideMaterial;
-        if (this.overrideMaterial !== undefined) {
-            oldOverrideMaterial = this.scene.overrideMaterial;
-            this.scene.overrideMaterial = this.overrideMaterial;
-        }
-        if (this.clearColor) {
-            renderer.getClearColor(this._oldClearColor);
-            oldClearAlpha = renderer.getClearAlpha();
-            renderer.setClearColor(this.clearColor, this.clearAlpha);
-        }
-        if (this.clearDepth) renderer.clearDepth();
-        renderer.setRenderTarget(this.renderToScreen ? null : readBuffer);
-        // TODO: Avoid using autoClear properties, see https://github.com/mrdoob/three.js/pull/15571#issuecomment-465669600
-        if (this.clear) renderer.clear(renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil);
-        renderer.render(this.scene, this.camera);
-        if (this.clearColor) renderer.setClearColor(this._oldClearColor, oldClearAlpha);
-        if (this.overrideMaterial !== undefined) this.scene.overrideMaterial = oldOverrideMaterial;
-        renderer.autoClear = oldAutoClear;
-    }
-}
-
-},{"three":"ktPTu","./Pass.js":"i2IfB","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"3iDYE":[function(require,module,exports) {
+},{"three/examples/jsm/postprocessing/UnrealBloomPass":"3iDYE","three/examples/jsm/postprocessing/EffectComposer":"e5jie","three/examples/jsm/postprocessing/RenderPass":"hXnUO","three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"3iDYE":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "UnrealBloomPass", ()=>UnrealBloomPass);
@@ -35659,7 +34324,115 @@ var _luminosityHighPassShaderJs = require("../shaders/LuminosityHighPassShader.j
 UnrealBloomPass.BlurDirectionX = new (0, _three.Vector2)(1.0, 0.0);
 UnrealBloomPass.BlurDirectionY = new (0, _three.Vector2)(0.0, 1.0);
 
-},{"three":"ktPTu","./Pass.js":"i2IfB","../shaders/CopyShader.js":"d0PyX","../shaders/LuminosityHighPassShader.js":"j8C2Y","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"j8C2Y":[function(require,module,exports) {
+},{"three":"ktPTu","./Pass.js":"i2IfB","../shaders/CopyShader.js":"d0PyX","../shaders/LuminosityHighPassShader.js":"j8C2Y","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"i2IfB":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Pass", ()=>Pass);
+parcelHelpers.export(exports, "FullScreenQuad", ()=>FullScreenQuad);
+var _three = require("three");
+class Pass {
+    constructor(){
+        this.isPass = true;
+        // if set to true, the pass is processed by the composer
+        this.enabled = true;
+        // if set to true, the pass indicates to swap read and write buffer after rendering
+        this.needsSwap = true;
+        // if set to true, the pass clears its buffer before rendering
+        this.clear = false;
+        // if set to true, the result of the pass is rendered to screen. This is set automatically by EffectComposer.
+        this.renderToScreen = false;
+    }
+    setSize() {}
+    render() {
+        console.error("THREE.Pass: .render() must be implemented in derived pass.");
+    }
+    dispose() {}
+}
+// Helper for passes that need to fill the viewport with a single quad.
+const _camera = new (0, _three.OrthographicCamera)(-1, 1, 1, -1, 0, 1);
+// https://github.com/mrdoob/three.js/pull/21358
+const _geometry = new (0, _three.BufferGeometry)();
+_geometry.setAttribute("position", new (0, _three.Float32BufferAttribute)([
+    -1,
+    3,
+    0,
+    -1,
+    -1,
+    0,
+    3,
+    -1,
+    0
+], 3));
+_geometry.setAttribute("uv", new (0, _three.Float32BufferAttribute)([
+    0,
+    2,
+    0,
+    0,
+    2,
+    0
+], 2));
+class FullScreenQuad {
+    constructor(material){
+        this._mesh = new (0, _three.Mesh)(_geometry, material);
+    }
+    dispose() {
+        this._mesh.geometry.dispose();
+    }
+    render(renderer) {
+        renderer.render(this._mesh, _camera);
+    }
+    get material() {
+        return this._mesh.material;
+    }
+    set material(value) {
+        this._mesh.material = value;
+    }
+}
+
+},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"d0PyX":[function(require,module,exports) {
+/**
+ * Full-screen textured quad shader
+ */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "CopyShader", ()=>CopyShader);
+const CopyShader = {
+    name: "CopyShader",
+    uniforms: {
+        "tDiffuse": {
+            value: null
+        },
+        "opacity": {
+            value: 1.0
+        }
+    },
+    vertexShader: /* glsl */ `
+
+		varying vec2 vUv;
+
+		void main() {
+
+			vUv = uv;
+			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+		}`,
+    fragmentShader: /* glsl */ `
+
+		uniform float opacity;
+
+		uniform sampler2D tDiffuse;
+
+		varying vec2 vUv;
+
+		void main() {
+
+			gl_FragColor = texture2D( tDiffuse, vUv );
+			gl_FragColor.a *= opacity;
+
+
+		}`
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"j8C2Y":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "LuminosityHighPassShader", ()=>LuminosityHighPassShader);
@@ -35724,1554 +34497,285 @@ var _three = require("three");
 		}`
 };
 
-},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"bpRzV":[function(require,module,exports) {
+},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"e5jie":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "HideTextAnimation", ()=>HideTextAnimation);
-parcelHelpers.export(exports, "ShowTextAnimation", ()=>ShowTextAnimation);
-var _animeEs = require("animejs/lib/anime.es");
-var _animeEsDefault = parcelHelpers.interopDefault(_animeEs);
-const INTRO_REF = document.getElementById("intro");
-const TITLE_REF = document.getElementById("title");
-const DESCRIPTION_REF = document.getElementById("description");
-const SUBTITLE_REF = document.getElementById("subtitle");
-const FOOTER_REF = document.getElementById("intro-footer");
-//esconder intro al inicio
-INTRO_REF.style.display = "none";
-//el objeto contine el texto de cada una de las presentaciones
-const TEXT_INTRO = {
-    title: "Lorem, ipsum Lorem",
-    description: "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Dolores suscipit magni minus illo asperiores.",
-    subtitle: "lorem ipsum morem sit doel re",
-    footer: "Let's Start"
-};
-console.log(TITLE_REF);
-//setup text into span
-TITLE_REF.innerHTML = TEXT_INTRO.title.replace(/\S/g, "<span class='animated-item'>$&</span>");
-DESCRIPTION_REF.innerHTML = `<div class = animated-item>${TEXT_INTRO.description}</div>`;
-SUBTITLE_REF.innerHTML = `<div class = "animated-item">${TEXT_INTRO.subtitle}</d>`;
-FOOTER_REF.innerHTML = `
-<div class="animated-item">${TEXT_INTRO.footer}</div>
-<div id="start" class="animated-item btn-begin"></div>
-`;
-ShowTextAnimation("animated-item-dot");
-function ShowTextAnimation(target) {
-    //aparecer presentacion
-    console.log("ANIMAR: " + target);
-    (0, _animeEsDefault.default).timeline({
-        loop: false
-    }).add({
-        targets: target,
-        bottom: [
-            -220,
-            0
-        ],
-        easing: "easeOutExpo",
-        duration: 1500,
-        delay: (0, _animeEsDefault.default).stagger(30)
-    });
-}
-function HideTextAnimation(target) {
-    (0, _animeEsDefault.default).timeline({
-        loop: false
-    }).add({
-        targets: target,
-        top: [
-            0,
-            -500
-        ],
-        delay: 1000,
-        display: "none",
-        direction: "reverse",
-        easing: "easeInCirc",
-        duration: 1200,
-        delay: (0, _animeEsDefault.default).stagger(30)
-    });
-}
-
-},{"animejs/lib/anime.es":"jokr5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jokr5":[function(require,module,exports) {
-/*
- * anime.js v3.2.1
- * (c) 2020 Julian Garnier
- * Released under the MIT license
- * animejs.com
- */ // Defaults
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var defaultInstanceSettings = {
-    update: null,
-    begin: null,
-    loopBegin: null,
-    changeBegin: null,
-    change: null,
-    changeComplete: null,
-    loopComplete: null,
-    complete: null,
-    loop: 1,
-    direction: "normal",
-    autoplay: true,
-    timelineOffset: 0
-};
-var defaultTweenSettings = {
-    duration: 1000,
-    delay: 0,
-    endDelay: 0,
-    easing: "easeOutElastic(1, .5)",
-    round: 0
-};
-var validTransforms = [
-    "translateX",
-    "translateY",
-    "translateZ",
-    "rotate",
-    "rotateX",
-    "rotateY",
-    "rotateZ",
-    "scale",
-    "scaleX",
-    "scaleY",
-    "scaleZ",
-    "skew",
-    "skewX",
-    "skewY",
-    "perspective",
-    "matrix",
-    "matrix3d"
-];
-// Caching
-var cache = {
-    CSS: {},
-    springs: {}
-};
-// Utils
-function minMax(val, min, max) {
-    return Math.min(Math.max(val, min), max);
-}
-function stringContains(str, text) {
-    return str.indexOf(text) > -1;
-}
-function applyArguments(func, args) {
-    return func.apply(null, args);
-}
-var is = {
-    arr: function(a) {
-        return Array.isArray(a);
-    },
-    obj: function(a) {
-        return stringContains(Object.prototype.toString.call(a), "Object");
-    },
-    pth: function(a) {
-        return is.obj(a) && a.hasOwnProperty("totalLength");
-    },
-    svg: function(a) {
-        return a instanceof SVGElement;
-    },
-    inp: function(a) {
-        return a instanceof HTMLInputElement;
-    },
-    dom: function(a) {
-        return a.nodeType || is.svg(a);
-    },
-    str: function(a) {
-        return typeof a === "string";
-    },
-    fnc: function(a) {
-        return typeof a === "function";
-    },
-    und: function(a) {
-        return typeof a === "undefined";
-    },
-    nil: function(a) {
-        return is.und(a) || a === null;
-    },
-    hex: function(a) {
-        return /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(a);
-    },
-    rgb: function(a) {
-        return /^rgb/.test(a);
-    },
-    hsl: function(a) {
-        return /^hsl/.test(a);
-    },
-    col: function(a) {
-        return is.hex(a) || is.rgb(a) || is.hsl(a);
-    },
-    key: function(a) {
-        return !defaultInstanceSettings.hasOwnProperty(a) && !defaultTweenSettings.hasOwnProperty(a) && a !== "targets" && a !== "keyframes";
-    }
-};
-// Easings
-function parseEasingParameters(string) {
-    var match = /\(([^)]+)\)/.exec(string);
-    return match ? match[1].split(",").map(function(p) {
-        return parseFloat(p);
-    }) : [];
-}
-// Spring solver inspired by Webkit Copyright © 2016 Apple Inc. All rights reserved. https://webkit.org/demos/spring/spring.js
-function spring(string, duration) {
-    var params = parseEasingParameters(string);
-    var mass = minMax(is.und(params[0]) ? 1 : params[0], .1, 100);
-    var stiffness = minMax(is.und(params[1]) ? 100 : params[1], .1, 100);
-    var damping = minMax(is.und(params[2]) ? 10 : params[2], .1, 100);
-    var velocity = minMax(is.und(params[3]) ? 0 : params[3], .1, 100);
-    var w0 = Math.sqrt(stiffness / mass);
-    var zeta = damping / (2 * Math.sqrt(stiffness * mass));
-    var wd = zeta < 1 ? w0 * Math.sqrt(1 - zeta * zeta) : 0;
-    var a = 1;
-    var b = zeta < 1 ? (zeta * w0 + -velocity) / wd : -velocity + w0;
-    function solver(t) {
-        var progress = duration ? duration * t / 1000 : t;
-        if (zeta < 1) progress = Math.exp(-progress * zeta * w0) * (a * Math.cos(wd * progress) + b * Math.sin(wd * progress));
-        else progress = (a + b * progress) * Math.exp(-progress * w0);
-        if (t === 0 || t === 1) return t;
-        return 1 - progress;
-    }
-    function getDuration() {
-        var cached = cache.springs[string];
-        if (cached) return cached;
-        var frame = 1 / 6;
-        var elapsed = 0;
-        var rest = 0;
-        while(true){
-            elapsed += frame;
-            if (solver(elapsed) === 1) {
-                rest++;
-                if (rest >= 16) break;
-            } else rest = 0;
-        }
-        var duration = elapsed * frame * 1000;
-        cache.springs[string] = duration;
-        return duration;
-    }
-    return duration ? solver : getDuration;
-}
-// Basic steps easing implementation https://developer.mozilla.org/fr/docs/Web/CSS/transition-timing-function
-function steps(steps) {
-    if (steps === void 0) steps = 10;
-    return function(t) {
-        return Math.ceil(minMax(t, 0.000001, 1) * steps) * (1 / steps);
-    };
-}
-// BezierEasing https://github.com/gre/bezier-easing
-var bezier = function() {
-    var kSplineTableSize = 11;
-    var kSampleStepSize = 1.0 / (kSplineTableSize - 1.0);
-    function A(aA1, aA2) {
-        return 1.0 - 3.0 * aA2 + 3.0 * aA1;
-    }
-    function B(aA1, aA2) {
-        return 3.0 * aA2 - 6.0 * aA1;
-    }
-    function C(aA1) {
-        return 3.0 * aA1;
-    }
-    function calcBezier(aT, aA1, aA2) {
-        return ((A(aA1, aA2) * aT + B(aA1, aA2)) * aT + C(aA1)) * aT;
-    }
-    function getSlope(aT, aA1, aA2) {
-        return 3.0 * A(aA1, aA2) * aT * aT + 2.0 * B(aA1, aA2) * aT + C(aA1);
-    }
-    function binarySubdivide(aX, aA, aB, mX1, mX2) {
-        var currentX, currentT, i = 0;
-        do {
-            currentT = aA + (aB - aA) / 2.0;
-            currentX = calcBezier(currentT, mX1, mX2) - aX;
-            if (currentX > 0.0) aB = currentT;
-            else aA = currentT;
-        }while (Math.abs(currentX) > 0.0000001 && ++i < 10);
-        return currentT;
-    }
-    function newtonRaphsonIterate(aX, aGuessT, mX1, mX2) {
-        for(var i = 0; i < 4; ++i){
-            var currentSlope = getSlope(aGuessT, mX1, mX2);
-            if (currentSlope === 0.0) return aGuessT;
-            var currentX = calcBezier(aGuessT, mX1, mX2) - aX;
-            aGuessT -= currentX / currentSlope;
-        }
-        return aGuessT;
-    }
-    function bezier(mX1, mY1, mX2, mY2) {
-        if (!(0 <= mX1 && mX1 <= 1 && 0 <= mX2 && mX2 <= 1)) return;
-        var sampleValues = new Float32Array(kSplineTableSize);
-        if (mX1 !== mY1 || mX2 !== mY2) for(var i = 0; i < kSplineTableSize; ++i)sampleValues[i] = calcBezier(i * kSampleStepSize, mX1, mX2);
-        function getTForX(aX) {
-            var intervalStart = 0;
-            var currentSample = 1;
-            var lastSample = kSplineTableSize - 1;
-            for(; currentSample !== lastSample && sampleValues[currentSample] <= aX; ++currentSample)intervalStart += kSampleStepSize;
-            --currentSample;
-            var dist = (aX - sampleValues[currentSample]) / (sampleValues[currentSample + 1] - sampleValues[currentSample]);
-            var guessForT = intervalStart + dist * kSampleStepSize;
-            var initialSlope = getSlope(guessForT, mX1, mX2);
-            if (initialSlope >= 0.001) return newtonRaphsonIterate(aX, guessForT, mX1, mX2);
-            else if (initialSlope === 0.0) return guessForT;
-            else return binarySubdivide(aX, intervalStart, intervalStart + kSampleStepSize, mX1, mX2);
-        }
-        return function(x) {
-            if (mX1 === mY1 && mX2 === mY2) return x;
-            if (x === 0 || x === 1) return x;
-            return calcBezier(getTForX(x), mY1, mY2);
-        };
-    }
-    return bezier;
-}();
-var penner = function() {
-    // Based on jQuery UI's implemenation of easing equations from Robert Penner (http://www.robertpenner.com/easing)
-    var eases = {
-        linear: function() {
-            return function(t) {
-                return t;
-            };
-        }
-    };
-    var functionEasings = {
-        Sine: function() {
-            return function(t) {
-                return 1 - Math.cos(t * Math.PI / 2);
-            };
-        },
-        Circ: function() {
-            return function(t) {
-                return 1 - Math.sqrt(1 - t * t);
-            };
-        },
-        Back: function() {
-            return function(t) {
-                return t * t * (3 * t - 2);
-            };
-        },
-        Bounce: function() {
-            return function(t) {
-                var pow2, b = 4;
-                while(t < ((pow2 = Math.pow(2, --b)) - 1) / 11);
-                return 1 / Math.pow(4, 3 - b) - 7.5625 * Math.pow((pow2 * 3 - 2) / 22 - t, 2);
-            };
-        },
-        Elastic: function(amplitude, period) {
-            if (amplitude === void 0) amplitude = 1;
-            if (period === void 0) period = .5;
-            var a = minMax(amplitude, 1, 10);
-            var p = minMax(period, .1, 2);
-            return function(t) {
-                return t === 0 || t === 1 ? t : -a * Math.pow(2, 10 * (t - 1)) * Math.sin((t - 1 - p / (Math.PI * 2) * Math.asin(1 / a)) * (Math.PI * 2) / p);
-            };
-        }
-    };
-    var baseEasings = [
-        "Quad",
-        "Cubic",
-        "Quart",
-        "Quint",
-        "Expo"
-    ];
-    baseEasings.forEach(function(name, i) {
-        functionEasings[name] = function() {
-            return function(t) {
-                return Math.pow(t, i + 2);
-            };
-        };
-    });
-    Object.keys(functionEasings).forEach(function(name) {
-        var easeIn = functionEasings[name];
-        eases["easeIn" + name] = easeIn;
-        eases["easeOut" + name] = function(a, b) {
-            return function(t) {
-                return 1 - easeIn(a, b)(1 - t);
-            };
-        };
-        eases["easeInOut" + name] = function(a, b) {
-            return function(t) {
-                return t < 0.5 ? easeIn(a, b)(t * 2) / 2 : 1 - easeIn(a, b)(t * -2 + 2) / 2;
-            };
-        };
-        eases["easeOutIn" + name] = function(a, b) {
-            return function(t) {
-                return t < 0.5 ? (1 - easeIn(a, b)(1 - t * 2)) / 2 : (easeIn(a, b)(t * 2 - 1) + 1) / 2;
-            };
-        };
-    });
-    return eases;
-}();
-function parseEasings(easing, duration) {
-    if (is.fnc(easing)) return easing;
-    var name = easing.split("(")[0];
-    var ease = penner[name];
-    var args = parseEasingParameters(easing);
-    switch(name){
-        case "spring":
-            return spring(easing, duration);
-        case "cubicBezier":
-            return applyArguments(bezier, args);
-        case "steps":
-            return applyArguments(steps, args);
-        default:
-            return applyArguments(ease, args);
-    }
-}
-// Strings
-function selectString(str) {
-    try {
-        var nodes = document.querySelectorAll(str);
-        return nodes;
-    } catch (e) {
-        return;
-    }
-}
-// Arrays
-function filterArray(arr, callback) {
-    var len = arr.length;
-    var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
-    var result = [];
-    for(var i = 0; i < len; i++)if (i in arr) {
-        var val = arr[i];
-        if (callback.call(thisArg, val, i, arr)) result.push(val);
-    }
-    return result;
-}
-function flattenArray(arr) {
-    return arr.reduce(function(a, b) {
-        return a.concat(is.arr(b) ? flattenArray(b) : b);
-    }, []);
-}
-function toArray(o) {
-    if (is.arr(o)) return o;
-    if (is.str(o)) o = selectString(o) || o;
-    if (o instanceof NodeList || o instanceof HTMLCollection) return [].slice.call(o);
-    return [
-        o
-    ];
-}
-function arrayContains(arr, val) {
-    return arr.some(function(a) {
-        return a === val;
-    });
-}
-// Objects
-function cloneObject(o) {
-    var clone = {};
-    for(var p in o)clone[p] = o[p];
-    return clone;
-}
-function replaceObjectProps(o1, o2) {
-    var o = cloneObject(o1);
-    for(var p in o1)o[p] = o2.hasOwnProperty(p) ? o2[p] : o1[p];
-    return o;
-}
-function mergeObjects(o1, o2) {
-    var o = cloneObject(o1);
-    for(var p in o2)o[p] = is.und(o1[p]) ? o2[p] : o1[p];
-    return o;
-}
-// Colors
-function rgbToRgba(rgbValue) {
-    var rgb = /rgb\((\d+,\s*[\d]+,\s*[\d]+)\)/g.exec(rgbValue);
-    return rgb ? "rgba(" + rgb[1] + ",1)" : rgbValue;
-}
-function hexToRgba(hexValue) {
-    var rgx = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-    var hex = hexValue.replace(rgx, function(m, r, g, b) {
-        return r + r + g + g + b + b;
-    });
-    var rgb = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    var r = parseInt(rgb[1], 16);
-    var g = parseInt(rgb[2], 16);
-    var b = parseInt(rgb[3], 16);
-    return "rgba(" + r + "," + g + "," + b + ",1)";
-}
-function hslToRgba(hslValue) {
-    var hsl = /hsl\((\d+),\s*([\d.]+)%,\s*([\d.]+)%\)/g.exec(hslValue) || /hsla\((\d+),\s*([\d.]+)%,\s*([\d.]+)%,\s*([\d.]+)\)/g.exec(hslValue);
-    var h = parseInt(hsl[1], 10) / 360;
-    var s = parseInt(hsl[2], 10) / 100;
-    var l = parseInt(hsl[3], 10) / 100;
-    var a = hsl[4] || 1;
-    function hue2rgb(p, q, t) {
-        if (t < 0) t += 1;
-        if (t > 1) t -= 1;
-        if (t < 1 / 6) return p + (q - p) * 6 * t;
-        if (t < 0.5) return q;
-        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-        return p;
-    }
-    var r, g, b;
-    if (s == 0) r = g = b = l;
-    else {
-        var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-        var p = 2 * l - q;
-        r = hue2rgb(p, q, h + 1 / 3);
-        g = hue2rgb(p, q, h);
-        b = hue2rgb(p, q, h - 1 / 3);
-    }
-    return "rgba(" + r * 255 + "," + g * 255 + "," + b * 255 + "," + a + ")";
-}
-function colorToRgb(val) {
-    if (is.rgb(val)) return rgbToRgba(val);
-    if (is.hex(val)) return hexToRgba(val);
-    if (is.hsl(val)) return hslToRgba(val);
-}
-// Units
-function getUnit(val) {
-    var split = /[+-]?\d*\.?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?(%|px|pt|em|rem|in|cm|mm|ex|ch|pc|vw|vh|vmin|vmax|deg|rad|turn)?$/.exec(val);
-    if (split) return split[1];
-}
-function getTransformUnit(propName) {
-    if (stringContains(propName, "translate") || propName === "perspective") return "px";
-    if (stringContains(propName, "rotate") || stringContains(propName, "skew")) return "deg";
-}
-// Values
-function getFunctionValue(val, animatable) {
-    if (!is.fnc(val)) return val;
-    return val(animatable.target, animatable.id, animatable.total);
-}
-function getAttribute(el, prop) {
-    return el.getAttribute(prop);
-}
-function convertPxToUnit(el, value, unit) {
-    var valueUnit = getUnit(value);
-    if (arrayContains([
-        unit,
-        "deg",
-        "rad",
-        "turn"
-    ], valueUnit)) return value;
-    var cached = cache.CSS[value + unit];
-    if (!is.und(cached)) return cached;
-    var baseline = 100;
-    var tempEl = document.createElement(el.tagName);
-    var parentEl = el.parentNode && el.parentNode !== document ? el.parentNode : document.body;
-    parentEl.appendChild(tempEl);
-    tempEl.style.position = "absolute";
-    tempEl.style.width = baseline + unit;
-    var factor = baseline / tempEl.offsetWidth;
-    parentEl.removeChild(tempEl);
-    var convertedUnit = factor * parseFloat(value);
-    cache.CSS[value + unit] = convertedUnit;
-    return convertedUnit;
-}
-function getCSSValue(el, prop, unit) {
-    if (prop in el.style) {
-        var uppercasePropName = prop.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
-        var value = el.style[prop] || getComputedStyle(el).getPropertyValue(uppercasePropName) || "0";
-        return unit ? convertPxToUnit(el, value, unit) : value;
-    }
-}
-function getAnimationType(el, prop) {
-    if (is.dom(el) && !is.inp(el) && (!is.nil(getAttribute(el, prop)) || is.svg(el) && el[prop])) return "attribute";
-    if (is.dom(el) && arrayContains(validTransforms, prop)) return "transform";
-    if (is.dom(el) && prop !== "transform" && getCSSValue(el, prop)) return "css";
-    if (el[prop] != null) return "object";
-}
-function getElementTransforms(el) {
-    if (!is.dom(el)) return;
-    var str = el.style.transform || "";
-    var reg = /(\w+)\(([^)]*)\)/g;
-    var transforms = new Map();
-    var m;
-    while(m = reg.exec(str))transforms.set(m[1], m[2]);
-    return transforms;
-}
-function getTransformValue(el, propName, animatable, unit) {
-    var defaultVal = stringContains(propName, "scale") ? 1 : 0 + getTransformUnit(propName);
-    var value = getElementTransforms(el).get(propName) || defaultVal;
-    if (animatable) {
-        animatable.transforms.list.set(propName, value);
-        animatable.transforms["last"] = propName;
-    }
-    return unit ? convertPxToUnit(el, value, unit) : value;
-}
-function getOriginalTargetValue(target, propName, unit, animatable) {
-    switch(getAnimationType(target, propName)){
-        case "transform":
-            return getTransformValue(target, propName, animatable, unit);
-        case "css":
-            return getCSSValue(target, propName, unit);
-        case "attribute":
-            return getAttribute(target, propName);
-        default:
-            return target[propName] || 0;
-    }
-}
-function getRelativeValue(to, from) {
-    var operator = /^(\*=|\+=|-=)/.exec(to);
-    if (!operator) return to;
-    var u = getUnit(to) || 0;
-    var x = parseFloat(from);
-    var y = parseFloat(to.replace(operator[0], ""));
-    switch(operator[0][0]){
-        case "+":
-            return x + y + u;
-        case "-":
-            return x - y + u;
-        case "*":
-            return x * y + u;
-    }
-}
-function validateValue(val, unit) {
-    if (is.col(val)) return colorToRgb(val);
-    if (/\s/g.test(val)) return val;
-    var originalUnit = getUnit(val);
-    var unitLess = originalUnit ? val.substr(0, val.length - originalUnit.length) : val;
-    if (unit) return unitLess + unit;
-    return unitLess;
-}
-// getTotalLength() equivalent for circle, rect, polyline, polygon and line shapes
-// adapted from https://gist.github.com/SebLambla/3e0550c496c236709744
-function getDistance(p1, p2) {
-    return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
-}
-function getCircleLength(el) {
-    return Math.PI * 2 * getAttribute(el, "r");
-}
-function getRectLength(el) {
-    return getAttribute(el, "width") * 2 + getAttribute(el, "height") * 2;
-}
-function getLineLength(el) {
-    return getDistance({
-        x: getAttribute(el, "x1"),
-        y: getAttribute(el, "y1")
-    }, {
-        x: getAttribute(el, "x2"),
-        y: getAttribute(el, "y2")
-    });
-}
-function getPolylineLength(el) {
-    var points = el.points;
-    var totalLength = 0;
-    var previousPos;
-    for(var i = 0; i < points.numberOfItems; i++){
-        var currentPos = points.getItem(i);
-        if (i > 0) totalLength += getDistance(previousPos, currentPos);
-        previousPos = currentPos;
-    }
-    return totalLength;
-}
-function getPolygonLength(el) {
-    var points = el.points;
-    return getPolylineLength(el) + getDistance(points.getItem(points.numberOfItems - 1), points.getItem(0));
-}
-// Path animation
-function getTotalLength(el) {
-    if (el.getTotalLength) return el.getTotalLength();
-    switch(el.tagName.toLowerCase()){
-        case "circle":
-            return getCircleLength(el);
-        case "rect":
-            return getRectLength(el);
-        case "line":
-            return getLineLength(el);
-        case "polyline":
-            return getPolylineLength(el);
-        case "polygon":
-            return getPolygonLength(el);
-    }
-}
-function setDashoffset(el) {
-    var pathLength = getTotalLength(el);
-    el.setAttribute("stroke-dasharray", pathLength);
-    return pathLength;
-}
-// Motion path
-function getParentSvgEl(el) {
-    var parentEl = el.parentNode;
-    while(is.svg(parentEl)){
-        if (!is.svg(parentEl.parentNode)) break;
-        parentEl = parentEl.parentNode;
-    }
-    return parentEl;
-}
-function getParentSvg(pathEl, svgData) {
-    var svg = svgData || {};
-    var parentSvgEl = svg.el || getParentSvgEl(pathEl);
-    var rect = parentSvgEl.getBoundingClientRect();
-    var viewBoxAttr = getAttribute(parentSvgEl, "viewBox");
-    var width = rect.width;
-    var height = rect.height;
-    var viewBox = svg.viewBox || (viewBoxAttr ? viewBoxAttr.split(" ") : [
-        0,
-        0,
-        width,
-        height
-    ]);
-    return {
-        el: parentSvgEl,
-        viewBox: viewBox,
-        x: viewBox[0] / 1,
-        y: viewBox[1] / 1,
-        w: width,
-        h: height,
-        vW: viewBox[2],
-        vH: viewBox[3]
-    };
-}
-function getPath(path, percent) {
-    var pathEl = is.str(path) ? selectString(path)[0] : path;
-    var p = percent || 100;
-    return function(property) {
-        return {
-            property: property,
-            el: pathEl,
-            svg: getParentSvg(pathEl),
-            totalLength: getTotalLength(pathEl) * (p / 100)
-        };
-    };
-}
-function getPathProgress(path, progress, isPathTargetInsideSVG) {
-    function point(offset) {
-        if (offset === void 0) offset = 0;
-        var l = progress + offset >= 1 ? progress + offset : 0;
-        return path.el.getPointAtLength(l);
-    }
-    var svg = getParentSvg(path.el, path.svg);
-    var p = point();
-    var p0 = point(-1);
-    var p1 = point(1);
-    var scaleX = isPathTargetInsideSVG ? 1 : svg.w / svg.vW;
-    var scaleY = isPathTargetInsideSVG ? 1 : svg.h / svg.vH;
-    switch(path.property){
-        case "x":
-            return (p.x - svg.x) * scaleX;
-        case "y":
-            return (p.y - svg.y) * scaleY;
-        case "angle":
-            return Math.atan2(p1.y - p0.y, p1.x - p0.x) * 180 / Math.PI;
-    }
-}
-// Decompose value
-function decomposeValue(val, unit) {
-    // const rgx = /-?\d*\.?\d+/g; // handles basic numbers
-    // const rgx = /[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/g; // handles exponents notation
-    var rgx = /[+-]?\d*\.?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/g; // handles exponents notation
-    var value = validateValue(is.pth(val) ? val.totalLength : val, unit) + "";
-    return {
-        original: value,
-        numbers: value.match(rgx) ? value.match(rgx).map(Number) : [
-            0
-        ],
-        strings: is.str(val) || unit ? value.split(rgx) : []
-    };
-}
-// Animatables
-function parseTargets(targets) {
-    var targetsArray = targets ? flattenArray(is.arr(targets) ? targets.map(toArray) : toArray(targets)) : [];
-    return filterArray(targetsArray, function(item, pos, self) {
-        return self.indexOf(item) === pos;
-    });
-}
-function getAnimatables(targets) {
-    var parsed = parseTargets(targets);
-    return parsed.map(function(t, i) {
-        return {
-            target: t,
-            id: i,
-            total: parsed.length,
-            transforms: {
-                list: getElementTransforms(t)
-            }
-        };
-    });
-}
-// Properties
-function normalizePropertyTweens(prop, tweenSettings) {
-    var settings = cloneObject(tweenSettings);
-    // Override duration if easing is a spring
-    if (/^spring/.test(settings.easing)) settings.duration = spring(settings.easing);
-    if (is.arr(prop)) {
-        var l = prop.length;
-        var isFromTo = l === 2 && !is.obj(prop[0]);
-        if (!isFromTo) // Duration divided by the number of tweens
-        {
-            if (!is.fnc(tweenSettings.duration)) settings.duration = tweenSettings.duration / l;
-        } else // Transform [from, to] values shorthand to a valid tween value
-        prop = {
-            value: prop
-        };
-    }
-    var propArray = is.arr(prop) ? prop : [
-        prop
-    ];
-    return propArray.map(function(v, i) {
-        var obj = is.obj(v) && !is.pth(v) ? v : {
-            value: v
-        };
-        // Default delay value should only be applied to the first tween
-        if (is.und(obj.delay)) obj.delay = !i ? tweenSettings.delay : 0;
-        // Default endDelay value should only be applied to the last tween
-        if (is.und(obj.endDelay)) obj.endDelay = i === propArray.length - 1 ? tweenSettings.endDelay : 0;
-        return obj;
-    }).map(function(k) {
-        return mergeObjects(k, settings);
-    });
-}
-function flattenKeyframes(keyframes) {
-    var propertyNames = filterArray(flattenArray(keyframes.map(function(key) {
-        return Object.keys(key);
-    })), function(p) {
-        return is.key(p);
-    }).reduce(function(a, b) {
-        if (a.indexOf(b) < 0) a.push(b);
-        return a;
-    }, []);
-    var properties = {};
-    var loop = function(i) {
-        var propName = propertyNames[i];
-        properties[propName] = keyframes.map(function(key) {
-            var newKey = {};
-            for(var p in key){
-                if (is.key(p)) {
-                    if (p == propName) newKey.value = key[p];
-                } else newKey[p] = key[p];
-            }
-            return newKey;
-        });
-    };
-    for(var i = 0; i < propertyNames.length; i++)loop(i);
-    return properties;
-}
-function getProperties(tweenSettings, params) {
-    var properties = [];
-    var keyframes = params.keyframes;
-    if (keyframes) params = mergeObjects(flattenKeyframes(keyframes), params);
-    for(var p in params)if (is.key(p)) properties.push({
-        name: p,
-        tweens: normalizePropertyTweens(params[p], tweenSettings)
-    });
-    return properties;
-}
-// Tweens
-function normalizeTweenValues(tween, animatable) {
-    var t = {};
-    for(var p in tween){
-        var value = getFunctionValue(tween[p], animatable);
-        if (is.arr(value)) {
-            value = value.map(function(v) {
-                return getFunctionValue(v, animatable);
-            });
-            if (value.length === 1) value = value[0];
-        }
-        t[p] = value;
-    }
-    t.duration = parseFloat(t.duration);
-    t.delay = parseFloat(t.delay);
-    return t;
-}
-function normalizeTweens(prop, animatable) {
-    var previousTween;
-    return prop.tweens.map(function(t) {
-        var tween = normalizeTweenValues(t, animatable);
-        var tweenValue = tween.value;
-        var to = is.arr(tweenValue) ? tweenValue[1] : tweenValue;
-        var toUnit = getUnit(to);
-        var originalValue = getOriginalTargetValue(animatable.target, prop.name, toUnit, animatable);
-        var previousValue = previousTween ? previousTween.to.original : originalValue;
-        var from = is.arr(tweenValue) ? tweenValue[0] : previousValue;
-        var fromUnit = getUnit(from) || getUnit(originalValue);
-        var unit = toUnit || fromUnit;
-        if (is.und(to)) to = previousValue;
-        tween.from = decomposeValue(from, unit);
-        tween.to = decomposeValue(getRelativeValue(to, from), unit);
-        tween.start = previousTween ? previousTween.end : 0;
-        tween.end = tween.start + tween.delay + tween.duration + tween.endDelay;
-        tween.easing = parseEasings(tween.easing, tween.duration);
-        tween.isPath = is.pth(tweenValue);
-        tween.isPathTargetInsideSVG = tween.isPath && is.svg(animatable.target);
-        tween.isColor = is.col(tween.from.original);
-        if (tween.isColor) tween.round = 1;
-        previousTween = tween;
-        return tween;
-    });
-}
-// Tween progress
-var setProgressValue = {
-    css: function(t, p, v) {
-        return t.style[p] = v;
-    },
-    attribute: function(t, p, v) {
-        return t.setAttribute(p, v);
-    },
-    object: function(t, p, v) {
-        return t[p] = v;
-    },
-    transform: function(t, p, v, transforms, manual) {
-        transforms.list.set(p, v);
-        if (p === transforms.last || manual) {
-            var str = "";
-            transforms.list.forEach(function(value, prop) {
-                str += prop + "(" + value + ") ";
-            });
-            t.style.transform = str;
-        }
-    }
-};
-// Set Value helper
-function setTargetsValue(targets, properties) {
-    var animatables = getAnimatables(targets);
-    animatables.forEach(function(animatable) {
-        for(var property in properties){
-            var value = getFunctionValue(properties[property], animatable);
-            var target = animatable.target;
-            var valueUnit = getUnit(value);
-            var originalValue = getOriginalTargetValue(target, property, valueUnit, animatable);
-            var unit = valueUnit || getUnit(originalValue);
-            var to = getRelativeValue(validateValue(value, unit), originalValue);
-            var animType = getAnimationType(target, property);
-            setProgressValue[animType](target, property, to, animatable.transforms, true);
-        }
-    });
-}
-// Animations
-function createAnimation(animatable, prop) {
-    var animType = getAnimationType(animatable.target, prop.name);
-    if (animType) {
-        var tweens = normalizeTweens(prop, animatable);
-        var lastTween = tweens[tweens.length - 1];
-        return {
-            type: animType,
-            property: prop.name,
-            animatable: animatable,
-            tweens: tweens,
-            duration: lastTween.end,
-            delay: tweens[0].delay,
-            endDelay: lastTween.endDelay
-        };
-    }
-}
-function getAnimations(animatables, properties) {
-    return filterArray(flattenArray(animatables.map(function(animatable) {
-        return properties.map(function(prop) {
-            return createAnimation(animatable, prop);
-        });
-    })), function(a) {
-        return !is.und(a);
-    });
-}
-// Create Instance
-function getInstanceTimings(animations, tweenSettings) {
-    var animLength = animations.length;
-    var getTlOffset = function(anim) {
-        return anim.timelineOffset ? anim.timelineOffset : 0;
-    };
-    var timings = {};
-    timings.duration = animLength ? Math.max.apply(Math, animations.map(function(anim) {
-        return getTlOffset(anim) + anim.duration;
-    })) : tweenSettings.duration;
-    timings.delay = animLength ? Math.min.apply(Math, animations.map(function(anim) {
-        return getTlOffset(anim) + anim.delay;
-    })) : tweenSettings.delay;
-    timings.endDelay = animLength ? timings.duration - Math.max.apply(Math, animations.map(function(anim) {
-        return getTlOffset(anim) + anim.duration - anim.endDelay;
-    })) : tweenSettings.endDelay;
-    return timings;
-}
-var instanceID = 0;
-function createNewInstance(params) {
-    var instanceSettings = replaceObjectProps(defaultInstanceSettings, params);
-    var tweenSettings = replaceObjectProps(defaultTweenSettings, params);
-    var properties = getProperties(tweenSettings, params);
-    var animatables = getAnimatables(params.targets);
-    var animations = getAnimations(animatables, properties);
-    var timings = getInstanceTimings(animations, tweenSettings);
-    var id = instanceID;
-    instanceID++;
-    return mergeObjects(instanceSettings, {
-        id: id,
-        children: [],
-        animatables: animatables,
-        animations: animations,
-        duration: timings.duration,
-        delay: timings.delay,
-        endDelay: timings.endDelay
-    });
-}
-// Core
-var activeInstances = [];
-var engine = function() {
-    var raf;
-    function play() {
-        if (!raf && (!isDocumentHidden() || !anime.suspendWhenDocumentHidden) && activeInstances.length > 0) raf = requestAnimationFrame(step);
-    }
-    function step(t) {
-        // memo on algorithm issue:
-        // dangerous iteration over mutable `activeInstances`
-        // (that collection may be updated from within callbacks of `tick`-ed animation instances)
-        var activeInstancesLength = activeInstances.length;
-        var i = 0;
-        while(i < activeInstancesLength){
-            var activeInstance = activeInstances[i];
-            if (!activeInstance.paused) {
-                activeInstance.tick(t);
-                i++;
-            } else {
-                activeInstances.splice(i, 1);
-                activeInstancesLength--;
-            }
-        }
-        raf = i > 0 ? requestAnimationFrame(step) : undefined;
-    }
-    function handleVisibilityChange() {
-        if (!anime.suspendWhenDocumentHidden) return;
-        if (isDocumentHidden()) // suspend ticks
-        raf = cancelAnimationFrame(raf);
-        else {
-            // first adjust animations to consider the time that ticks were suspended
-            activeInstances.forEach(function(instance) {
-                return instance._onDocumentVisibility();
-            });
-            engine();
-        }
-    }
-    if (typeof document !== "undefined") document.addEventListener("visibilitychange", handleVisibilityChange);
-    return play;
-}();
-function isDocumentHidden() {
-    return !!document && document.hidden;
-}
-// Public Instance
-function anime(params) {
-    if (params === void 0) params = {};
-    var startTime = 0, lastTime = 0, now = 0;
-    var children, childrenLength = 0;
-    var resolve = null;
-    function makePromise(instance) {
-        var promise = window.Promise && new Promise(function(_resolve) {
-            return resolve = _resolve;
-        });
-        instance.finished = promise;
-        return promise;
-    }
-    var instance = createNewInstance(params);
-    var promise = makePromise(instance);
-    function toggleInstanceDirection() {
-        var direction = instance.direction;
-        if (direction !== "alternate") instance.direction = direction !== "normal" ? "normal" : "reverse";
-        instance.reversed = !instance.reversed;
-        children.forEach(function(child) {
-            return child.reversed = instance.reversed;
-        });
-    }
-    function adjustTime(time) {
-        return instance.reversed ? instance.duration - time : time;
-    }
-    function resetTime() {
-        startTime = 0;
-        lastTime = adjustTime(instance.currentTime) * (1 / anime.speed);
-    }
-    function seekChild(time, child) {
-        if (child) child.seek(time - child.timelineOffset);
-    }
-    function syncInstanceChildren(time) {
-        if (!instance.reversePlayback) for(var i = 0; i < childrenLength; i++)seekChild(time, children[i]);
-        else for(var i$1 = childrenLength; i$1--;)seekChild(time, children[i$1]);
-    }
-    function setAnimationsProgress(insTime) {
-        var i = 0;
-        var animations = instance.animations;
-        var animationsLength = animations.length;
-        while(i < animationsLength){
-            var anim = animations[i];
-            var animatable = anim.animatable;
-            var tweens = anim.tweens;
-            var tweenLength = tweens.length - 1;
-            var tween = tweens[tweenLength];
-            // Only check for keyframes if there is more than one tween
-            if (tweenLength) tween = filterArray(tweens, function(t) {
-                return insTime < t.end;
-            })[0] || tween;
-            var elapsed = minMax(insTime - tween.start - tween.delay, 0, tween.duration) / tween.duration;
-            var eased = isNaN(elapsed) ? 1 : tween.easing(elapsed);
-            var strings = tween.to.strings;
-            var round = tween.round;
-            var numbers = [];
-            var toNumbersLength = tween.to.numbers.length;
-            var progress = void 0;
-            for(var n = 0; n < toNumbersLength; n++){
-                var value = void 0;
-                var toNumber = tween.to.numbers[n];
-                var fromNumber = tween.from.numbers[n] || 0;
-                if (!tween.isPath) value = fromNumber + eased * (toNumber - fromNumber);
-                else value = getPathProgress(tween.value, eased * toNumber, tween.isPathTargetInsideSVG);
-                if (round) {
-                    if (!(tween.isColor && n > 2)) value = Math.round(value * round) / round;
-                }
-                numbers.push(value);
-            }
-            // Manual Array.reduce for better performances
-            var stringsLength = strings.length;
-            if (!stringsLength) progress = numbers[0];
-            else {
-                progress = strings[0];
-                for(var s = 0; s < stringsLength; s++){
-                    var a = strings[s];
-                    var b = strings[s + 1];
-                    var n$1 = numbers[s];
-                    if (!isNaN(n$1)) {
-                        if (!b) progress += n$1 + " ";
-                        else progress += n$1 + b;
-                    }
-                }
-            }
-            setProgressValue[anim.type](animatable.target, anim.property, progress, animatable.transforms);
-            anim.currentValue = progress;
-            i++;
-        }
-    }
-    function setCallback(cb) {
-        if (instance[cb] && !instance.passThrough) instance[cb](instance);
-    }
-    function countIteration() {
-        if (instance.remaining && instance.remaining !== true) instance.remaining--;
-    }
-    function setInstanceProgress(engineTime) {
-        var insDuration = instance.duration;
-        var insDelay = instance.delay;
-        var insEndDelay = insDuration - instance.endDelay;
-        var insTime = adjustTime(engineTime);
-        instance.progress = minMax(insTime / insDuration * 100, 0, 100);
-        instance.reversePlayback = insTime < instance.currentTime;
-        if (children) syncInstanceChildren(insTime);
-        if (!instance.began && instance.currentTime > 0) {
-            instance.began = true;
-            setCallback("begin");
-        }
-        if (!instance.loopBegan && instance.currentTime > 0) {
-            instance.loopBegan = true;
-            setCallback("loopBegin");
-        }
-        if (insTime <= insDelay && instance.currentTime !== 0) setAnimationsProgress(0);
-        if (insTime >= insEndDelay && instance.currentTime !== insDuration || !insDuration) setAnimationsProgress(insDuration);
-        if (insTime > insDelay && insTime < insEndDelay) {
-            if (!instance.changeBegan) {
-                instance.changeBegan = true;
-                instance.changeCompleted = false;
-                setCallback("changeBegin");
-            }
-            setCallback("change");
-            setAnimationsProgress(insTime);
-        } else if (instance.changeBegan) {
-            instance.changeCompleted = true;
-            instance.changeBegan = false;
-            setCallback("changeComplete");
-        }
-        instance.currentTime = minMax(insTime, 0, insDuration);
-        if (instance.began) setCallback("update");
-        if (engineTime >= insDuration) {
-            lastTime = 0;
-            countIteration();
-            if (!instance.remaining) {
-                instance.paused = true;
-                if (!instance.completed) {
-                    instance.completed = true;
-                    setCallback("loopComplete");
-                    setCallback("complete");
-                    if (!instance.passThrough && "Promise" in window) {
-                        resolve();
-                        promise = makePromise(instance);
-                    }
-                }
-            } else {
-                startTime = now;
-                setCallback("loopComplete");
-                instance.loopBegan = false;
-                if (instance.direction === "alternate") toggleInstanceDirection();
-            }
-        }
-    }
-    instance.reset = function() {
-        var direction = instance.direction;
-        instance.passThrough = false;
-        instance.currentTime = 0;
-        instance.progress = 0;
-        instance.paused = true;
-        instance.began = false;
-        instance.loopBegan = false;
-        instance.changeBegan = false;
-        instance.completed = false;
-        instance.changeCompleted = false;
-        instance.reversePlayback = false;
-        instance.reversed = direction === "reverse";
-        instance.remaining = instance.loop;
-        children = instance.children;
-        childrenLength = children.length;
-        for(var i = childrenLength; i--;)instance.children[i].reset();
-        if (instance.reversed && instance.loop !== true || direction === "alternate" && instance.loop === 1) instance.remaining++;
-        setAnimationsProgress(instance.reversed ? instance.duration : 0);
-    };
-    // internal method (for engine) to adjust animation timings before restoring engine ticks (rAF)
-    instance._onDocumentVisibility = resetTime;
-    // Set Value helper
-    instance.set = function(targets, properties) {
-        setTargetsValue(targets, properties);
-        return instance;
-    };
-    instance.tick = function(t) {
-        now = t;
-        if (!startTime) startTime = now;
-        setInstanceProgress((now + (lastTime - startTime)) * anime.speed);
-    };
-    instance.seek = function(time) {
-        setInstanceProgress(adjustTime(time));
-    };
-    instance.pause = function() {
-        instance.paused = true;
-        resetTime();
-    };
-    instance.play = function() {
-        if (!instance.paused) return;
-        if (instance.completed) instance.reset();
-        instance.paused = false;
-        activeInstances.push(instance);
-        resetTime();
-        engine();
-    };
-    instance.reverse = function() {
-        toggleInstanceDirection();
-        instance.completed = instance.reversed ? false : true;
-        resetTime();
-    };
-    instance.restart = function() {
-        instance.reset();
-        instance.play();
-    };
-    instance.remove = function(targets) {
-        var targetsArray = parseTargets(targets);
-        removeTargetsFromInstance(targetsArray, instance);
-    };
-    instance.reset();
-    if (instance.autoplay) instance.play();
-    return instance;
-}
-// Remove targets from animation
-function removeTargetsFromAnimations(targetsArray, animations) {
-    for(var a = animations.length; a--;)if (arrayContains(targetsArray, animations[a].animatable.target)) animations.splice(a, 1);
-}
-function removeTargetsFromInstance(targetsArray, instance) {
-    var animations = instance.animations;
-    var children = instance.children;
-    removeTargetsFromAnimations(targetsArray, animations);
-    for(var c = children.length; c--;){
-        var child = children[c];
-        var childAnimations = child.animations;
-        removeTargetsFromAnimations(targetsArray, childAnimations);
-        if (!childAnimations.length && !child.children.length) children.splice(c, 1);
-    }
-    if (!animations.length && !children.length) instance.pause();
-}
-function removeTargetsFromActiveInstances(targets) {
-    var targetsArray = parseTargets(targets);
-    for(var i = activeInstances.length; i--;){
-        var instance = activeInstances[i];
-        removeTargetsFromInstance(targetsArray, instance);
-    }
-}
-// Stagger helpers
-function stagger(val, params) {
-    if (params === void 0) params = {};
-    var direction = params.direction || "normal";
-    var easing = params.easing ? parseEasings(params.easing) : null;
-    var grid = params.grid;
-    var axis = params.axis;
-    var fromIndex = params.from || 0;
-    var fromFirst = fromIndex === "first";
-    var fromCenter = fromIndex === "center";
-    var fromLast = fromIndex === "last";
-    var isRange = is.arr(val);
-    var val1 = isRange ? parseFloat(val[0]) : parseFloat(val);
-    var val2 = isRange ? parseFloat(val[1]) : 0;
-    var unit = getUnit(isRange ? val[1] : val) || 0;
-    var start = params.start || 0 + (isRange ? val1 : 0);
-    var values = [];
-    var maxValue = 0;
-    return function(el, i, t) {
-        if (fromFirst) fromIndex = 0;
-        if (fromCenter) fromIndex = (t - 1) / 2;
-        if (fromLast) fromIndex = t - 1;
-        if (!values.length) {
-            for(var index = 0; index < t; index++){
-                if (!grid) values.push(Math.abs(fromIndex - index));
-                else {
-                    var fromX = !fromCenter ? fromIndex % grid[0] : (grid[0] - 1) / 2;
-                    var fromY = !fromCenter ? Math.floor(fromIndex / grid[0]) : (grid[1] - 1) / 2;
-                    var toX = index % grid[0];
-                    var toY = Math.floor(index / grid[0]);
-                    var distanceX = fromX - toX;
-                    var distanceY = fromY - toY;
-                    var value = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
-                    if (axis === "x") value = -distanceX;
-                    if (axis === "y") value = -distanceY;
-                    values.push(value);
-                }
-                maxValue = Math.max.apply(Math, values);
-            }
-            if (easing) values = values.map(function(val) {
-                return easing(val / maxValue) * maxValue;
-            });
-            if (direction === "reverse") values = values.map(function(val) {
-                return axis ? val < 0 ? val * -1 : -val : Math.abs(maxValue - val);
-            });
-        }
-        var spacing = isRange ? (val2 - val1) / maxValue : val1;
-        return start + spacing * (Math.round(values[i] * 100) / 100) + unit;
-    };
-}
-// Timeline
-function timeline(params) {
-    if (params === void 0) params = {};
-    var tl = anime(params);
-    tl.duration = 0;
-    tl.add = function(instanceParams, timelineOffset) {
-        var tlIndex = activeInstances.indexOf(tl);
-        var children = tl.children;
-        if (tlIndex > -1) activeInstances.splice(tlIndex, 1);
-        function passThrough(ins) {
-            ins.passThrough = true;
-        }
-        for(var i = 0; i < children.length; i++)passThrough(children[i]);
-        var insParams = mergeObjects(instanceParams, replaceObjectProps(defaultTweenSettings, params));
-        insParams.targets = insParams.targets || params.targets;
-        var tlDuration = tl.duration;
-        insParams.autoplay = false;
-        insParams.direction = tl.direction;
-        insParams.timelineOffset = is.und(timelineOffset) ? tlDuration : getRelativeValue(timelineOffset, tlDuration);
-        passThrough(tl);
-        tl.seek(insParams.timelineOffset);
-        var ins = anime(insParams);
-        passThrough(ins);
-        children.push(ins);
-        var timings = getInstanceTimings(children, params);
-        tl.delay = timings.delay;
-        tl.endDelay = timings.endDelay;
-        tl.duration = timings.duration;
-        tl.seek(0);
-        tl.reset();
-        if (tl.autoplay) tl.play();
-        return tl;
-    };
-    return tl;
-}
-anime.version = "3.2.1";
-anime.speed = 1;
-// TODO:#review: naming, documentation
-anime.suspendWhenDocumentHidden = true;
-anime.running = activeInstances;
-anime.remove = removeTargetsFromActiveInstances;
-anime.get = getOriginalTargetValue;
-anime.set = setTargetsValue;
-anime.convertPx = convertPxToUnit;
-anime.path = getPath;
-anime.setDashoffset = setDashoffset;
-anime.stagger = stagger;
-anime.timeline = timeline;
-anime.easing = parseEasings;
-anime.penner = penner;
-anime.random = function(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-};
-exports.default = anime;
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gaVEv":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _gltfloader = require("three/examples/jsm/loaders/GLTFLoader");
-//lobal variables
-let modelo;
-const loader = new (0, _gltfloader.GLTFLoader)();
-class ModelInstance {
-    //load model
-    //set global variables
-    constructor(modelUrl){
-        //load model
-        this.modelo = cargarModelo(modelUrl);
-    }
-}
-//AUXILIAR FUNTIONS
-//setup main funtion
-async function cargarModelo(url) {
-    try {
-        //esperar por el modelo
-        modelo = await loader.loadAsync(url);
-        // Accede al modelo cargado
-        const modeloObjeto = modelo.scene;
-        //cargar animaciones
-        LoadClipAnimations(modelo);
-        console.log("Modelo Cargado", modeloObjeto);
-        return modeloObjeto;
-    // ... código adicional para configurar y mostrar el modelo ...
-    } catch (error) {
-        // Ocurrió un error al cargar el modelo
-        console.error("Error al cargar el modelo:", error);
-    }
-}
-//export all clips
-function LoadClipAnimations(scene) {
-    if (scene.animations) return scene.animations;
-}
-//export instance
-exports.default = ModelInstance;
-
-},{"three/examples/jsm/loaders/GLTFLoader":"dVRsF","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"9mulx":[function(require,module,exports) {
-//auxiliar methods
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _unrealBloomPass = require("three/examples/jsm/postprocessing/UnrealBloomPass");
-var _effectComposer = require("three/examples/jsm/postprocessing/EffectComposer");
-var _renderPass = require("three/examples/jsm/postprocessing/RenderPass");
+parcelHelpers.export(exports, "EffectComposer", ()=>EffectComposer);
 var _three = require("three");
-//global variables
-//scene elements
-const _SCENE_PROPS = {
-    camera: null,
-    scene: null,
-    mainComposer: null
-};
-const _POST_PROCESING = {
-    bloomPass: BloomPass(),
-    renderPass: null
-};
-//main class funtions
-class PostProcesing {
-    constructor(camera, scene, renderer){
-        //setup components for postprocesing
-        _SCENE_PROPS.camera = camera;
-        _SCENE_PROPS.scene = scene;
-        //start effects for scene
-        _POST_PROCESING.renderPass = new (0, _renderPass.RenderPass)(scene, camera);
-        _SCENE_PROPS.mainComposer = new (0, _effectComposer.EffectComposer)(renderer);
-        //start post procesing elements
-        SetupPostProcesing(_SCENE_PROPS.scene, _SCENE_PROPS.camera);
-    }
-    //aplly all post procesing effects
-    //call every frame in loop
-    render() {
-        _SCENE_PROPS.mainComposer.render(_SCENE_PROPS.scene, _SCENE_PROPS.camera);
-    }
-}
-//POST PROCESING EFFECTS
-//BLOOM!!
-function BloomPass() {
-    //params for bloom
-    const bloomConfig = {
-        resolution: new (0, _three.Vector2)(window.innerWidth, window.innerHeight),
-        strength: 1.7,
-        radius: 0.9,
-        threshold: 0
-    };
-    //setup bloom
-    const bloomPass = new (0, _unrealBloomPass.UnrealBloomPass)(bloomConfig.resolution, bloomConfig.strength, bloomConfig.radius, bloomConfig.threshold);
-    return bloomPass;
-}
-//start al post procesing effects
-function SetupPostProcesing() {
-    //set the main normal scene
-    _SCENE_PROPS.mainComposer.addPass(_POST_PROCESING.renderPass);
-    //setup bloom effect
-    _SCENE_PROPS.mainComposer.addPass(_POST_PROCESING.bloomPass);
-}
-//export
-exports.default = PostProcesing;
-
-},{"three/examples/jsm/postprocessing/UnrealBloomPass":"3iDYE","three/examples/jsm/postprocessing/EffectComposer":"e5jie","three/examples/jsm/postprocessing/RenderPass":"hXnUO","three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"lwjwC":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _three = require("three");
-//aux variables
-let wasHover = false;
-//global variables
-const RAY_CAST_MANAGER = {
-    ray: new (0, _three.Raycaster)(),
-    intersected: null,
-    mouse: new (0, _three.Vector2)(),
-    isRayReady: false
-};
-class DomManager {
-    constructor(mainCamera){
-        console.log("DOM Ray Casting Activo");
-        this.camera = mainCamera;
-        if (!this.camera) console.error("Camara no esta definida");
-    }
-    //actualizar el rayo de la camara hacia el mouse
-    setRayPosition(event) {
-        //asegura que la funcion sea llamada antes de detectar el objeto
-        RAY_CAST_MANAGER.isRayReady = true;
-        //set the mouse pos in value [-1, 1] to normalized
-        RAY_CAST_MANAGER.mouse.x = event.clientX / window.innerWidth * 2 - 1;
-        RAY_CAST_MANAGER.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-        //actualizar el origen del rayo
-        updateRaycastPositionFrom(this.camera);
-    }
-    //este metodo debe ser llamado cada vez que se quiera buscar
-    castElementFrom(element) {
-        //verificar que el rayo esta bien definido
-        if (!RAY_CAST_MANAGER.isRayReady) {
-            console.log("Metodo [setRayPosition] no se ha llamado");
-            return null;
+var _copyShaderJs = require("../shaders/CopyShader.js");
+var _shaderPassJs = require("./ShaderPass.js");
+var _maskPassJs = require("./MaskPass.js");
+class EffectComposer {
+    constructor(renderer, renderTarget){
+        this.renderer = renderer;
+        this._pixelRatio = renderer.getPixelRatio();
+        if (renderTarget === undefined) {
+            const size = renderer.getSize(new (0, _three.Vector2)());
+            this._width = size.width;
+            this._height = size.height;
+            renderTarget = new (0, _three.WebGLRenderTarget)(this._width * this._pixelRatio, this._height * this._pixelRatio, {
+                type: (0, _three.HalfFloatType)
+            });
+            renderTarget.texture.name = "EffectComposer.rt1";
+        } else {
+            this._width = renderTarget.width;
+            this._height = renderTarget.height;
         }
-        //si el rayo esta actualizado podemos buscar
-        RAY_CAST_MANAGER.intersected = RAY_CAST_MANAGER.ray.intersectObjects(element, true);
-        return RAY_CAST_MANAGER.intersected[0];
+        this.renderTarget1 = renderTarget;
+        this.renderTarget2 = renderTarget.clone();
+        this.renderTarget2.texture.name = "EffectComposer.rt2";
+        this.writeBuffer = this.renderTarget1;
+        this.readBuffer = this.renderTarget2;
+        this.renderToScreen = true;
+        this.passes = [];
+        this.copyPass = new (0, _shaderPassJs.ShaderPass)((0, _copyShaderJs.CopyShader));
+        this.clock = new (0, _three.Clock)();
     }
-    //verifica si el elemento actual esta en HOVER
-    isHoverOn() {
-        //esta en hover
-        if (!RAY_CAST_MANAGER.intersected.length) {
-            console.log("nada selecionado");
-            return false;
-        } else return true;
+    swapBuffers() {
+        const tmp = this.readBuffer;
+        this.readBuffer = this.writeBuffer;
+        this.writeBuffer = tmp;
+    }
+    addPass(pass) {
+        this.passes.push(pass);
+        pass.setSize(this._width * this._pixelRatio, this._height * this._pixelRatio);
+    }
+    insertPass(pass, index) {
+        this.passes.splice(index, 0, pass);
+        pass.setSize(this._width * this._pixelRatio, this._height * this._pixelRatio);
+    }
+    removePass(pass) {
+        const index = this.passes.indexOf(pass);
+        if (index !== -1) this.passes.splice(index, 1);
+    }
+    isLastEnabledPass(passIndex) {
+        for(let i = passIndex + 1; i < this.passes.length; i++){
+            if (this.passes[i].enabled) return false;
+        }
+        return true;
+    }
+    render(deltaTime) {
+        // deltaTime value is in seconds
+        if (deltaTime === undefined) deltaTime = this.clock.getDelta();
+        const currentRenderTarget = this.renderer.getRenderTarget();
+        let maskActive = false;
+        for(let i = 0, il = this.passes.length; i < il; i++){
+            const pass = this.passes[i];
+            if (pass.enabled === false) continue;
+            pass.renderToScreen = this.renderToScreen && this.isLastEnabledPass(i);
+            pass.render(this.renderer, this.writeBuffer, this.readBuffer, deltaTime, maskActive);
+            if (pass.needsSwap) {
+                if (maskActive) {
+                    const context = this.renderer.getContext();
+                    const stencil = this.renderer.state.buffers.stencil;
+                    //context.stencilFunc( context.NOTEQUAL, 1, 0xffffffff );
+                    stencil.setFunc(context.NOTEQUAL, 1, 0xffffffff);
+                    this.copyPass.render(this.renderer, this.writeBuffer, this.readBuffer, deltaTime);
+                    //context.stencilFunc( context.EQUAL, 1, 0xffffffff );
+                    stencil.setFunc(context.EQUAL, 1, 0xffffffff);
+                }
+                this.swapBuffers();
+            }
+            if ((0, _maskPassJs.MaskPass) !== undefined) {
+                if (pass instanceof (0, _maskPassJs.MaskPass)) maskActive = true;
+                else if (pass instanceof (0, _maskPassJs.ClearMaskPass)) maskActive = false;
+            }
+        }
+        this.renderer.setRenderTarget(currentRenderTarget);
+    }
+    reset(renderTarget) {
+        if (renderTarget === undefined) {
+            const size = this.renderer.getSize(new (0, _three.Vector2)());
+            this._pixelRatio = this.renderer.getPixelRatio();
+            this._width = size.width;
+            this._height = size.height;
+            renderTarget = this.renderTarget1.clone();
+            renderTarget.setSize(this._width * this._pixelRatio, this._height * this._pixelRatio);
+        }
+        this.renderTarget1.dispose();
+        this.renderTarget2.dispose();
+        this.renderTarget1 = renderTarget;
+        this.renderTarget2 = renderTarget.clone();
+        this.writeBuffer = this.renderTarget1;
+        this.readBuffer = this.renderTarget2;
+    }
+    setSize(width, height) {
+        this._width = width;
+        this._height = height;
+        const effectiveWidth = this._width * this._pixelRatio;
+        const effectiveHeight = this._height * this._pixelRatio;
+        this.renderTarget1.setSize(effectiveWidth, effectiveHeight);
+        this.renderTarget2.setSize(effectiveWidth, effectiveHeight);
+        for(let i = 0; i < this.passes.length; i++)this.passes[i].setSize(effectiveWidth, effectiveHeight);
+    }
+    setPixelRatio(pixelRatio) {
+        this._pixelRatio = pixelRatio;
+        this.setSize(this._width, this._height);
+    }
+    dispose() {
+        this.renderTarget1.dispose();
+        this.renderTarget2.dispose();
+        this.copyPass.dispose();
     }
 }
-//actualiza el origend del rayo cada vez que lo llama
-//debe estar dentro del [mousemove] event listener
-function updateRaycastPositionFrom(camera) {
-    //disparar el rayo desde la camara hasta el mundo
-    RAY_CAST_MANAGER.ray.setFromCamera(RAY_CAST_MANAGER.mouse, camera);
-}
-exports.default = DomManager;
 
-},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gF6CA":[function(require,module,exports) {
+},{"three":"ktPTu","../shaders/CopyShader.js":"d0PyX","./ShaderPass.js":"5IxTN","./MaskPass.js":"jn76N","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5IxTN":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-const AUDIO_LINK = {
-    selectionUrl: new URL(require("2cc10dfa2c427b3c")).href,
-    backgroundUrl: new URL(require("a689a5347952475a")).href
-};
-console.log(AUDIO_LINK);
-const AUDIO_LIST = {
-    selection: new Audio(AUDIO_LINK.selectionUrl),
-    background: new Audio(AUDIO_LINK.backgroundUrl),
-    start: "vacio"
-};
-//carga los efectos de sonido
-class EffectManager {
+parcelHelpers.export(exports, "ShaderPass", ()=>ShaderPass);
+var _three = require("three");
+var _passJs = require("./Pass.js");
+class ShaderPass extends (0, _passJs.Pass) {
+    constructor(shader, textureID){
+        super();
+        this.textureID = textureID !== undefined ? textureID : "tDiffuse";
+        if (shader instanceof (0, _three.ShaderMaterial)) {
+            this.uniforms = shader.uniforms;
+            this.material = shader;
+        } else if (shader) {
+            this.uniforms = (0, _three.UniformsUtils).clone(shader.uniforms);
+            this.material = new (0, _three.ShaderMaterial)({
+                name: shader.name !== undefined ? shader.name : "unspecified",
+                defines: Object.assign({}, shader.defines),
+                uniforms: this.uniforms,
+                vertexShader: shader.vertexShader,
+                fragmentShader: shader.fragmentShader
+            });
+        }
+        this.fsQuad = new (0, _passJs.FullScreenQuad)(this.material);
+    }
+    render(renderer, writeBuffer, readBuffer /*, deltaTime, maskActive */ ) {
+        if (this.uniforms[this.textureID]) this.uniforms[this.textureID].value = readBuffer.texture;
+        this.fsQuad.material = this.material;
+        if (this.renderToScreen) {
+            renderer.setRenderTarget(null);
+            this.fsQuad.render(renderer);
+        } else {
+            renderer.setRenderTarget(writeBuffer);
+            // TODO: Avoid using autoClear properties, see https://github.com/mrdoob/three.js/pull/15571#issuecomment-465669600
+            if (this.clear) renderer.clear(renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil);
+            this.fsQuad.render(renderer);
+        }
+    }
+    dispose() {
+        this.material.dispose();
+        this.fsQuad.dispose();
+    }
+}
+
+},{"three":"ktPTu","./Pass.js":"i2IfB","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jn76N":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "MaskPass", ()=>MaskPass);
+parcelHelpers.export(exports, "ClearMaskPass", ()=>ClearMaskPass);
+var _passJs = require("./Pass.js");
+class MaskPass extends (0, _passJs.Pass) {
+    constructor(scene, camera){
+        super();
+        this.scene = scene;
+        this.camera = camera;
+        this.clear = true;
+        this.needsSwap = false;
+        this.inverse = false;
+    }
+    render(renderer, writeBuffer, readBuffer /*, deltaTime, maskActive */ ) {
+        const context = renderer.getContext();
+        const state = renderer.state;
+        // don't update color or depth
+        state.buffers.color.setMask(false);
+        state.buffers.depth.setMask(false);
+        // lock buffers
+        state.buffers.color.setLocked(true);
+        state.buffers.depth.setLocked(true);
+        // set up stencil
+        let writeValue, clearValue;
+        if (this.inverse) {
+            writeValue = 0;
+            clearValue = 1;
+        } else {
+            writeValue = 1;
+            clearValue = 0;
+        }
+        state.buffers.stencil.setTest(true);
+        state.buffers.stencil.setOp(context.REPLACE, context.REPLACE, context.REPLACE);
+        state.buffers.stencil.setFunc(context.ALWAYS, writeValue, 0xffffffff);
+        state.buffers.stencil.setClear(clearValue);
+        state.buffers.stencil.setLocked(true);
+        // draw into the stencil buffer
+        renderer.setRenderTarget(readBuffer);
+        if (this.clear) renderer.clear();
+        renderer.render(this.scene, this.camera);
+        renderer.setRenderTarget(writeBuffer);
+        if (this.clear) renderer.clear();
+        renderer.render(this.scene, this.camera);
+        // unlock color and depth buffer for subsequent rendering
+        state.buffers.color.setLocked(false);
+        state.buffers.depth.setLocked(false);
+        // only render where stencil is set to 1
+        state.buffers.stencil.setLocked(false);
+        state.buffers.stencil.setFunc(context.EQUAL, 1, 0xffffffff); // draw if == 1
+        state.buffers.stencil.setOp(context.KEEP, context.KEEP, context.KEEP);
+        state.buffers.stencil.setLocked(true);
+    }
+}
+class ClearMaskPass extends (0, _passJs.Pass) {
     constructor(){
-        //setup audio
-        //SetupAudioProps()
-        //list of elements thath will be use
-        this.audioList = AUDIO_LIST;
-    ///setup audio propeties
+        super();
+        this.needsSwap = false;
     }
-    //play selectionAudio
-    playSelectionAudio() {
-        //reproduce el audio [selection]
-        this.audioList.selection.play();
-    }
-    pauseSelectionAudio() {
-        //pausa el audio [selection]
-        this.audioList.selection.pause();
-    }
-    //play [BACKGROUND AUDIO]
-    playBackgroundAudio() {
-        this.audioList.background.play();
+    render(renderer /*, writeBuffer, readBuffer, deltaTime, maskActive */ ) {
+        renderer.state.buffers.stencil.setLocked(false);
+        renderer.state.buffers.stencil.setTest(false);
     }
 }
-//setup audio propeties
-function SetupAudioProps() {
-    //background sound
-    AUDIO_LINK.backgroundUrl.loop = true;
+
+},{"./Pass.js":"i2IfB","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hXnUO":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "RenderPass", ()=>RenderPass);
+var _three = require("three");
+var _passJs = require("./Pass.js");
+class RenderPass extends (0, _passJs.Pass) {
+    constructor(scene, camera, overrideMaterial, clearColor, clearAlpha){
+        super();
+        this.scene = scene;
+        this.camera = camera;
+        this.overrideMaterial = overrideMaterial;
+        this.clearColor = clearColor;
+        this.clearAlpha = clearAlpha !== undefined ? clearAlpha : 0;
+        this.clear = true;
+        this.clearDepth = false;
+        this.needsSwap = false;
+        this._oldClearColor = new (0, _three.Color)();
+    }
+    render(renderer, writeBuffer, readBuffer /*, deltaTime, maskActive */ ) {
+        const oldAutoClear = renderer.autoClear;
+        renderer.autoClear = false;
+        let oldClearAlpha, oldOverrideMaterial;
+        if (this.overrideMaterial !== undefined) {
+            oldOverrideMaterial = this.scene.overrideMaterial;
+            this.scene.overrideMaterial = this.overrideMaterial;
+        }
+        if (this.clearColor) {
+            renderer.getClearColor(this._oldClearColor);
+            oldClearAlpha = renderer.getClearAlpha();
+            renderer.setClearColor(this.clearColor, this.clearAlpha);
+        }
+        if (this.clearDepth) renderer.clearDepth();
+        renderer.setRenderTarget(this.renderToScreen ? null : readBuffer);
+        // TODO: Avoid using autoClear properties, see https://github.com/mrdoob/three.js/pull/15571#issuecomment-465669600
+        if (this.clear) renderer.clear(renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil);
+        renderer.render(this.scene, this.camera);
+        if (this.clearColor) renderer.setClearColor(this._oldClearColor, oldClearAlpha);
+        if (this.overrideMaterial !== undefined) this.scene.overrideMaterial = oldOverrideMaterial;
+        renderer.autoClear = oldAutoClear;
+    }
 }
-//export the main class
-exports.default = EffectManager;
 
-},{"2cc10dfa2c427b3c":"5q2Iu","a689a5347952475a":"cOlLC","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5q2Iu":[function(require,module,exports) {
-module.exports = require("e1f7a6f653ae3424").getBundleURL("fwMGY") + "selection.ae0a0f15.wav" + "?" + Date.now();
+},{"three":"ktPTu","./Pass.js":"i2IfB","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6deNw":[function(require,module,exports) {
+module.exports = require("e73399555c00260").getBundleURL("gtqCj") + "logo_anim.bdd28bce.glb" + "?" + Date.now();
 
-},{"e1f7a6f653ae3424":"lgJ39"}],"lgJ39":[function(require,module,exports) {
+},{"e73399555c00260":"lgJ39"}],"lgJ39":[function(require,module,exports) {
 "use strict";
 var bundleURL = {};
 function getBundleURLCached(id) {
@@ -37306,2473 +34810,6 @@ exports.getBundleURL = getBundleURLCached;
 exports.getBaseURL = getBaseURL;
 exports.getOrigin = getOrigin;
 
-},{}],"cOlLC":[function(require,module,exports) {
-module.exports = require("451818f90231200f").getBundleURL("fwMGY") + "background.ec31356c.wav" + "?" + Date.now();
+},{}]},["8cBfp","cGn8b"], "cGn8b", "parcelRequire94c2")
 
-},{"451818f90231200f":"lgJ39"}],"gmEI9":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "CSS3DObject", ()=>CSS3DObject);
-parcelHelpers.export(exports, "CSS3DSprite", ()=>CSS3DSprite);
-parcelHelpers.export(exports, "CSS3DRenderer", ()=>CSS3DRenderer);
-var _three = require("three");
-/**
- * Based on http://www.emagix.net/academic/mscs-project/item/camera-sync-with-css3-and-webgl-threejs
- */ const _position = new (0, _three.Vector3)();
-const _quaternion = new (0, _three.Quaternion)();
-const _scale = new (0, _three.Vector3)();
-class CSS3DObject extends (0, _three.Object3D) {
-    constructor(element = document.createElement("div")){
-        super();
-        this.isCSS3DObject = true;
-        this.element = element;
-        this.element.style.position = "absolute";
-        this.element.style.pointerEvents = "auto";
-        this.element.style.userSelect = "none";
-        this.element.setAttribute("draggable", false);
-        this.addEventListener("removed", function() {
-            this.traverse(function(object) {
-                if (object.element instanceof Element && object.element.parentNode !== null) object.element.parentNode.removeChild(object.element);
-            });
-        });
-    }
-    copy(source, recursive) {
-        super.copy(source, recursive);
-        this.element = source.element.cloneNode(true);
-        return this;
-    }
-}
-class CSS3DSprite extends CSS3DObject {
-    constructor(element){
-        super(element);
-        this.isCSS3DSprite = true;
-        this.rotation2D = 0;
-    }
-    copy(source, recursive) {
-        super.copy(source, recursive);
-        this.rotation2D = source.rotation2D;
-        return this;
-    }
-}
-//
-const _matrix = new (0, _three.Matrix4)();
-const _matrix2 = new (0, _three.Matrix4)();
-class CSS3DRenderer {
-    constructor(parameters = {}){
-        const _this = this;
-        let _width, _height;
-        let _widthHalf, _heightHalf;
-        const cache = {
-            camera: {
-                fov: 0,
-                style: ""
-            },
-            objects: new WeakMap()
-        };
-        const domElement = parameters.element !== undefined ? parameters.element : document.createElement("div");
-        domElement.style.overflow = "hidden";
-        this.domElement = domElement;
-        const viewElement = document.createElement("div");
-        viewElement.style.transformOrigin = "0 0";
-        viewElement.style.pointerEvents = "none";
-        domElement.appendChild(viewElement);
-        const cameraElement = document.createElement("div");
-        cameraElement.style.transformStyle = "preserve-3d";
-        viewElement.appendChild(cameraElement);
-        this.getSize = function() {
-            return {
-                width: _width,
-                height: _height
-            };
-        };
-        this.render = function(scene, camera) {
-            const fov = camera.projectionMatrix.elements[5] * _heightHalf;
-            if (cache.camera.fov !== fov) {
-                viewElement.style.perspective = camera.isPerspectiveCamera ? fov + "px" : "";
-                cache.camera.fov = fov;
-            }
-            if (camera.view && camera.view.enabled) {
-                // view offset
-                viewElement.style.transform = `translate( ${-camera.view.offsetX * (_width / camera.view.width)}px, ${-camera.view.offsetY * (_height / camera.view.height)}px )`;
-                // view fullWidth and fullHeight, view width and height
-                viewElement.style.transform += `scale( ${camera.view.fullWidth / camera.view.width}, ${camera.view.fullHeight / camera.view.height} )`;
-            } else viewElement.style.transform = "";
-            if (scene.matrixWorldAutoUpdate === true) scene.updateMatrixWorld();
-            if (camera.parent === null && camera.matrixWorldAutoUpdate === true) camera.updateMatrixWorld();
-            let tx, ty;
-            if (camera.isOrthographicCamera) {
-                tx = -(camera.right + camera.left) / 2;
-                ty = (camera.top + camera.bottom) / 2;
-            }
-            const scaleByViewOffset = camera.view && camera.view.enabled ? camera.view.height / camera.view.fullHeight : 1;
-            const cameraCSSMatrix = camera.isOrthographicCamera ? `scale( ${scaleByViewOffset} )` + "scale(" + fov + ")" + "translate(" + epsilon(tx) + "px," + epsilon(ty) + "px)" + getCameraCSSMatrix(camera.matrixWorldInverse) : `scale( ${scaleByViewOffset} )` + "translateZ(" + fov + "px)" + getCameraCSSMatrix(camera.matrixWorldInverse);
-            const style = cameraCSSMatrix + "translate(" + _widthHalf + "px," + _heightHalf + "px)";
-            if (cache.camera.style !== style) {
-                cameraElement.style.transform = style;
-                cache.camera.style = style;
-            }
-            renderObject(scene, scene, camera, cameraCSSMatrix);
-        };
-        this.setSize = function(width, height) {
-            _width = width;
-            _height = height;
-            _widthHalf = _width / 2;
-            _heightHalf = _height / 2;
-            domElement.style.width = width + "px";
-            domElement.style.height = height + "px";
-            viewElement.style.width = width + "px";
-            viewElement.style.height = height + "px";
-            cameraElement.style.width = width + "px";
-            cameraElement.style.height = height + "px";
-        };
-        function epsilon(value) {
-            return Math.abs(value) < 1e-10 ? 0 : value;
-        }
-        function getCameraCSSMatrix(matrix) {
-            const elements = matrix.elements;
-            return "matrix3d(" + epsilon(elements[0]) + "," + epsilon(-elements[1]) + "," + epsilon(elements[2]) + "," + epsilon(elements[3]) + "," + epsilon(elements[4]) + "," + epsilon(-elements[5]) + "," + epsilon(elements[6]) + "," + epsilon(elements[7]) + "," + epsilon(elements[8]) + "," + epsilon(-elements[9]) + "," + epsilon(elements[10]) + "," + epsilon(elements[11]) + "," + epsilon(elements[12]) + "," + epsilon(-elements[13]) + "," + epsilon(elements[14]) + "," + epsilon(elements[15]) + ")";
-        }
-        function getObjectCSSMatrix(matrix) {
-            const elements = matrix.elements;
-            const matrix3d = "matrix3d(" + epsilon(elements[0]) + "," + epsilon(elements[1]) + "," + epsilon(elements[2]) + "," + epsilon(elements[3]) + "," + epsilon(-elements[4]) + "," + epsilon(-elements[5]) + "," + epsilon(-elements[6]) + "," + epsilon(-elements[7]) + "," + epsilon(elements[8]) + "," + epsilon(elements[9]) + "," + epsilon(elements[10]) + "," + epsilon(elements[11]) + "," + epsilon(elements[12]) + "," + epsilon(elements[13]) + "," + epsilon(elements[14]) + "," + epsilon(elements[15]) + ")";
-            return "translate(-50%,-50%)" + matrix3d;
-        }
-        function renderObject(object, scene, camera, cameraCSSMatrix) {
-            if (object.isCSS3DObject) {
-                const visible = object.visible === true && object.layers.test(camera.layers) === true;
-                object.element.style.display = visible === true ? "" : "none";
-                if (visible === true) {
-                    object.onBeforeRender(_this, scene, camera);
-                    let style;
-                    if (object.isCSS3DSprite) {
-                        // http://swiftcoder.wordpress.com/2008/11/25/constructing-a-billboard-matrix/
-                        _matrix.copy(camera.matrixWorldInverse);
-                        _matrix.transpose();
-                        if (object.rotation2D !== 0) _matrix.multiply(_matrix2.makeRotationZ(object.rotation2D));
-                        object.matrixWorld.decompose(_position, _quaternion, _scale);
-                        _matrix.setPosition(_position);
-                        _matrix.scale(_scale);
-                        _matrix.elements[3] = 0;
-                        _matrix.elements[7] = 0;
-                        _matrix.elements[11] = 0;
-                        _matrix.elements[15] = 1;
-                        style = getObjectCSSMatrix(_matrix);
-                    } else style = getObjectCSSMatrix(object.matrixWorld);
-                    const element = object.element;
-                    const cachedObject = cache.objects.get(object);
-                    if (cachedObject === undefined || cachedObject.style !== style) {
-                        element.style.transform = style;
-                        const objectData = {
-                            style: style
-                        };
-                        cache.objects.set(object, objectData);
-                    }
-                    if (element.parentNode !== cameraElement) cameraElement.appendChild(element);
-                    object.onAfterRender(_this, scene, camera);
-                }
-            }
-            for(let i = 0, l = object.children.length; i < l; i++)renderObject(object.children[i], scene, camera, cameraCSSMatrix);
-        }
-    }
-}
-
-},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"k3xQk":[function(require,module,exports) {
-/**
- * dat-gui JavaScript Controller Library
- * https://github.com/dataarts/dat.gui
- *
- * Copyright 2011 Data Arts Team, Google Creative Lab
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "color", ()=>color);
-parcelHelpers.export(exports, "controllers", ()=>controllers);
-parcelHelpers.export(exports, "dom", ()=>dom$1);
-parcelHelpers.export(exports, "gui", ()=>gui);
-parcelHelpers.export(exports, "GUI", ()=>GUI$1);
-function ___$insertStyle(css) {
-    if (!css) return;
-    if (typeof window === "undefined") return;
-    var style = document.createElement("style");
-    style.setAttribute("type", "text/css");
-    style.innerHTML = css;
-    document.head.appendChild(style);
-    return css;
-}
-function colorToString(color, forceCSSHex) {
-    var colorFormat = color.__state.conversionName.toString();
-    var r = Math.round(color.r);
-    var g = Math.round(color.g);
-    var b = Math.round(color.b);
-    var a = color.a;
-    var h = Math.round(color.h);
-    var s = color.s.toFixed(1);
-    var v = color.v.toFixed(1);
-    if (forceCSSHex || colorFormat === "THREE_CHAR_HEX" || colorFormat === "SIX_CHAR_HEX") {
-        var str = color.hex.toString(16);
-        while(str.length < 6)str = "0" + str;
-        return "#" + str;
-    } else if (colorFormat === "CSS_RGB") return "rgb(" + r + "," + g + "," + b + ")";
-    else if (colorFormat === "CSS_RGBA") return "rgba(" + r + "," + g + "," + b + "," + a + ")";
-    else if (colorFormat === "HEX") return "0x" + color.hex.toString(16);
-    else if (colorFormat === "RGB_ARRAY") return "[" + r + "," + g + "," + b + "]";
-    else if (colorFormat === "RGBA_ARRAY") return "[" + r + "," + g + "," + b + "," + a + "]";
-    else if (colorFormat === "RGB_OBJ") return "{r:" + r + ",g:" + g + ",b:" + b + "}";
-    else if (colorFormat === "RGBA_OBJ") return "{r:" + r + ",g:" + g + ",b:" + b + ",a:" + a + "}";
-    else if (colorFormat === "HSV_OBJ") return "{h:" + h + ",s:" + s + ",v:" + v + "}";
-    else if (colorFormat === "HSVA_OBJ") return "{h:" + h + ",s:" + s + ",v:" + v + ",a:" + a + "}";
-    return "unknown format";
-}
-var ARR_EACH = Array.prototype.forEach;
-var ARR_SLICE = Array.prototype.slice;
-var Common = {
-    BREAK: {},
-    extend: function extend(target) {
-        this.each(ARR_SLICE.call(arguments, 1), function(obj) {
-            var keys = this.isObject(obj) ? Object.keys(obj) : [];
-            keys.forEach((function(key) {
-                if (!this.isUndefined(obj[key])) target[key] = obj[key];
-            }).bind(this));
-        }, this);
-        return target;
-    },
-    defaults: function defaults(target) {
-        this.each(ARR_SLICE.call(arguments, 1), function(obj) {
-            var keys = this.isObject(obj) ? Object.keys(obj) : [];
-            keys.forEach((function(key) {
-                if (this.isUndefined(target[key])) target[key] = obj[key];
-            }).bind(this));
-        }, this);
-        return target;
-    },
-    compose: function compose() {
-        var toCall = ARR_SLICE.call(arguments);
-        return function() {
-            var args = ARR_SLICE.call(arguments);
-            for(var i = toCall.length - 1; i >= 0; i--)args = [
-                toCall[i].apply(this, args)
-            ];
-            return args[0];
-        };
-    },
-    each: function each(obj, itr, scope) {
-        if (!obj) return;
-        if (ARR_EACH && obj.forEach && obj.forEach === ARR_EACH) obj.forEach(itr, scope);
-        else if (obj.length === obj.length + 0) {
-            var key = void 0;
-            var l = void 0;
-            for(key = 0, l = obj.length; key < l; key++){
-                if (key in obj && itr.call(scope, obj[key], key) === this.BREAK) return;
-            }
-        } else for(var _key in obj){
-            if (itr.call(scope, obj[_key], _key) === this.BREAK) return;
-        }
-    },
-    defer: function defer(fnc) {
-        setTimeout(fnc, 0);
-    },
-    debounce: function debounce(func, threshold, callImmediately) {
-        var timeout = void 0;
-        return function() {
-            var obj = this;
-            var args = arguments;
-            function delayed() {
-                timeout = null;
-                if (!callImmediately) func.apply(obj, args);
-            }
-            var callNow = callImmediately || !timeout;
-            clearTimeout(timeout);
-            timeout = setTimeout(delayed, threshold);
-            if (callNow) func.apply(obj, args);
-        };
-    },
-    toArray: function toArray(obj) {
-        if (obj.toArray) return obj.toArray();
-        return ARR_SLICE.call(obj);
-    },
-    isUndefined: function isUndefined(obj) {
-        return obj === undefined;
-    },
-    isNull: function isNull(obj) {
-        return obj === null;
-    },
-    isNaN: function(_isNaN) {
-        function isNaN1(_x) {
-            return _isNaN.apply(this, arguments);
-        }
-        isNaN1.toString = function() {
-            return _isNaN.toString();
-        };
-        return isNaN1;
-    }(function(obj) {
-        return isNaN(obj);
-    }),
-    isArray: Array.isArray || function(obj) {
-        return obj.constructor === Array;
-    },
-    isObject: function isObject(obj) {
-        return obj === Object(obj);
-    },
-    isNumber: function isNumber(obj) {
-        return obj === obj + 0;
-    },
-    isString: function isString(obj) {
-        return obj === obj + "";
-    },
-    isBoolean: function isBoolean(obj) {
-        return obj === false || obj === true;
-    },
-    isFunction: function isFunction(obj) {
-        return obj instanceof Function;
-    }
-};
-var INTERPRETATIONS = [
-    {
-        litmus: Common.isString,
-        conversions: {
-            THREE_CHAR_HEX: {
-                read: function read(original) {
-                    var test = original.match(/^#([A-F0-9])([A-F0-9])([A-F0-9])$/i);
-                    if (test === null) return false;
-                    return {
-                        space: "HEX",
-                        hex: parseInt("0x" + test[1].toString() + test[1].toString() + test[2].toString() + test[2].toString() + test[3].toString() + test[3].toString(), 0)
-                    };
-                },
-                write: colorToString
-            },
-            SIX_CHAR_HEX: {
-                read: function read(original) {
-                    var test = original.match(/^#([A-F0-9]{6})$/i);
-                    if (test === null) return false;
-                    return {
-                        space: "HEX",
-                        hex: parseInt("0x" + test[1].toString(), 0)
-                    };
-                },
-                write: colorToString
-            },
-            CSS_RGB: {
-                read: function read(original) {
-                    var test = original.match(/^rgb\(\s*(\S+)\s*,\s*(\S+)\s*,\s*(\S+)\s*\)/);
-                    if (test === null) return false;
-                    return {
-                        space: "RGB",
-                        r: parseFloat(test[1]),
-                        g: parseFloat(test[2]),
-                        b: parseFloat(test[3])
-                    };
-                },
-                write: colorToString
-            },
-            CSS_RGBA: {
-                read: function read(original) {
-                    var test = original.match(/^rgba\(\s*(\S+)\s*,\s*(\S+)\s*,\s*(\S+)\s*,\s*(\S+)\s*\)/);
-                    if (test === null) return false;
-                    return {
-                        space: "RGB",
-                        r: parseFloat(test[1]),
-                        g: parseFloat(test[2]),
-                        b: parseFloat(test[3]),
-                        a: parseFloat(test[4])
-                    };
-                },
-                write: colorToString
-            }
-        }
-    },
-    {
-        litmus: Common.isNumber,
-        conversions: {
-            HEX: {
-                read: function read(original) {
-                    return {
-                        space: "HEX",
-                        hex: original,
-                        conversionName: "HEX"
-                    };
-                },
-                write: function write(color) {
-                    return color.hex;
-                }
-            }
-        }
-    },
-    {
-        litmus: Common.isArray,
-        conversions: {
-            RGB_ARRAY: {
-                read: function read(original) {
-                    if (original.length !== 3) return false;
-                    return {
-                        space: "RGB",
-                        r: original[0],
-                        g: original[1],
-                        b: original[2]
-                    };
-                },
-                write: function write(color) {
-                    return [
-                        color.r,
-                        color.g,
-                        color.b
-                    ];
-                }
-            },
-            RGBA_ARRAY: {
-                read: function read(original) {
-                    if (original.length !== 4) return false;
-                    return {
-                        space: "RGB",
-                        r: original[0],
-                        g: original[1],
-                        b: original[2],
-                        a: original[3]
-                    };
-                },
-                write: function write(color) {
-                    return [
-                        color.r,
-                        color.g,
-                        color.b,
-                        color.a
-                    ];
-                }
-            }
-        }
-    },
-    {
-        litmus: Common.isObject,
-        conversions: {
-            RGBA_OBJ: {
-                read: function read(original) {
-                    if (Common.isNumber(original.r) && Common.isNumber(original.g) && Common.isNumber(original.b) && Common.isNumber(original.a)) return {
-                        space: "RGB",
-                        r: original.r,
-                        g: original.g,
-                        b: original.b,
-                        a: original.a
-                    };
-                    return false;
-                },
-                write: function write(color) {
-                    return {
-                        r: color.r,
-                        g: color.g,
-                        b: color.b,
-                        a: color.a
-                    };
-                }
-            },
-            RGB_OBJ: {
-                read: function read(original) {
-                    if (Common.isNumber(original.r) && Common.isNumber(original.g) && Common.isNumber(original.b)) return {
-                        space: "RGB",
-                        r: original.r,
-                        g: original.g,
-                        b: original.b
-                    };
-                    return false;
-                },
-                write: function write(color) {
-                    return {
-                        r: color.r,
-                        g: color.g,
-                        b: color.b
-                    };
-                }
-            },
-            HSVA_OBJ: {
-                read: function read(original) {
-                    if (Common.isNumber(original.h) && Common.isNumber(original.s) && Common.isNumber(original.v) && Common.isNumber(original.a)) return {
-                        space: "HSV",
-                        h: original.h,
-                        s: original.s,
-                        v: original.v,
-                        a: original.a
-                    };
-                    return false;
-                },
-                write: function write(color) {
-                    return {
-                        h: color.h,
-                        s: color.s,
-                        v: color.v,
-                        a: color.a
-                    };
-                }
-            },
-            HSV_OBJ: {
-                read: function read(original) {
-                    if (Common.isNumber(original.h) && Common.isNumber(original.s) && Common.isNumber(original.v)) return {
-                        space: "HSV",
-                        h: original.h,
-                        s: original.s,
-                        v: original.v
-                    };
-                    return false;
-                },
-                write: function write(color) {
-                    return {
-                        h: color.h,
-                        s: color.s,
-                        v: color.v
-                    };
-                }
-            }
-        }
-    }
-];
-var result = void 0;
-var toReturn = void 0;
-var interpret = function interpret() {
-    toReturn = false;
-    var original = arguments.length > 1 ? Common.toArray(arguments) : arguments[0];
-    Common.each(INTERPRETATIONS, function(family) {
-        if (family.litmus(original)) {
-            Common.each(family.conversions, function(conversion, conversionName) {
-                result = conversion.read(original);
-                if (toReturn === false && result !== false) {
-                    toReturn = result;
-                    result.conversionName = conversionName;
-                    result.conversion = conversion;
-                    return Common.BREAK;
-                }
-            });
-            return Common.BREAK;
-        }
-    });
-    return toReturn;
-};
-var tmpComponent = void 0;
-var ColorMath = {
-    hsv_to_rgb: function hsv_to_rgb(h, s, v) {
-        var hi = Math.floor(h / 60) % 6;
-        var f = h / 60 - Math.floor(h / 60);
-        var p = v * (1.0 - s);
-        var q = v * (1.0 - f * s);
-        var t = v * (1.0 - (1.0 - f) * s);
-        var c = [
-            [
-                v,
-                t,
-                p
-            ],
-            [
-                q,
-                v,
-                p
-            ],
-            [
-                p,
-                v,
-                t
-            ],
-            [
-                p,
-                q,
-                v
-            ],
-            [
-                t,
-                p,
-                v
-            ],
-            [
-                v,
-                p,
-                q
-            ]
-        ][hi];
-        return {
-            r: c[0] * 255,
-            g: c[1] * 255,
-            b: c[2] * 255
-        };
-    },
-    rgb_to_hsv: function rgb_to_hsv(r, g, b) {
-        var min = Math.min(r, g, b);
-        var max = Math.max(r, g, b);
-        var delta = max - min;
-        var h = void 0;
-        var s = void 0;
-        if (max !== 0) s = delta / max;
-        else return {
-            h: NaN,
-            s: 0,
-            v: 0
-        };
-        if (r === max) h = (g - b) / delta;
-        else if (g === max) h = 2 + (b - r) / delta;
-        else h = 4 + (r - g) / delta;
-        h /= 6;
-        if (h < 0) h += 1;
-        return {
-            h: h * 360,
-            s: s,
-            v: max / 255
-        };
-    },
-    rgb_to_hex: function rgb_to_hex(r, g, b) {
-        var hex = this.hex_with_component(0, 2, r);
-        hex = this.hex_with_component(hex, 1, g);
-        hex = this.hex_with_component(hex, 0, b);
-        return hex;
-    },
-    component_from_hex: function component_from_hex(hex, componentIndex) {
-        return hex >> componentIndex * 8 & 0xFF;
-    },
-    hex_with_component: function hex_with_component(hex, componentIndex, value) {
-        return value << (tmpComponent = componentIndex * 8) | hex & ~(0xFF << tmpComponent);
-    }
-};
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function(obj) {
-    return typeof obj;
-} : function(obj) {
-    return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-};
-var classCallCheck = function(instance, Constructor) {
-    if (!(instance instanceof Constructor)) throw new TypeError("Cannot call a class as a function");
-};
-var createClass = function() {
-    function defineProperties(target, props) {
-        for(var i = 0; i < props.length; i++){
-            var descriptor = props[i];
-            descriptor.enumerable = descriptor.enumerable || false;
-            descriptor.configurable = true;
-            if ("value" in descriptor) descriptor.writable = true;
-            Object.defineProperty(target, descriptor.key, descriptor);
-        }
-    }
-    return function(Constructor, protoProps, staticProps) {
-        if (protoProps) defineProperties(Constructor.prototype, protoProps);
-        if (staticProps) defineProperties(Constructor, staticProps);
-        return Constructor;
-    };
-}();
-var get = function get(object, property, receiver) {
-    if (object === null) object = Function.prototype;
-    var desc = Object.getOwnPropertyDescriptor(object, property);
-    if (desc === undefined) {
-        var parent = Object.getPrototypeOf(object);
-        if (parent === null) return undefined;
-        else return get(parent, property, receiver);
-    } else if ("value" in desc) return desc.value;
-    else {
-        var getter = desc.get;
-        if (getter === undefined) return undefined;
-        return getter.call(receiver);
-    }
-};
-var inherits = function(subClass, superClass) {
-    if (typeof superClass !== "function" && superClass !== null) throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-    subClass.prototype = Object.create(superClass && superClass.prototype, {
-        constructor: {
-            value: subClass,
-            enumerable: false,
-            writable: true,
-            configurable: true
-        }
-    });
-    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-};
-var possibleConstructorReturn = function(self, call) {
-    if (!self) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    return call && (typeof call === "object" || typeof call === "function") ? call : self;
-};
-var Color = function() {
-    function Color() {
-        classCallCheck(this, Color);
-        this.__state = interpret.apply(this, arguments);
-        if (this.__state === false) throw new Error("Failed to interpret color arguments");
-        this.__state.a = this.__state.a || 1;
-    }
-    createClass(Color, [
-        {
-            key: "toString",
-            value: function toString() {
-                return colorToString(this);
-            }
-        },
-        {
-            key: "toHexString",
-            value: function toHexString() {
-                return colorToString(this, true);
-            }
-        },
-        {
-            key: "toOriginal",
-            value: function toOriginal() {
-                return this.__state.conversion.write(this);
-            }
-        }
-    ]);
-    return Color;
-}();
-function defineRGBComponent(target, component, componentHexIndex) {
-    Object.defineProperty(target, component, {
-        get: function get$$1() {
-            if (this.__state.space === "RGB") return this.__state[component];
-            Color.recalculateRGB(this, component, componentHexIndex);
-            return this.__state[component];
-        },
-        set: function set$$1(v) {
-            if (this.__state.space !== "RGB") {
-                Color.recalculateRGB(this, component, componentHexIndex);
-                this.__state.space = "RGB";
-            }
-            this.__state[component] = v;
-        }
-    });
-}
-function defineHSVComponent(target, component) {
-    Object.defineProperty(target, component, {
-        get: function get$$1() {
-            if (this.__state.space === "HSV") return this.__state[component];
-            Color.recalculateHSV(this);
-            return this.__state[component];
-        },
-        set: function set$$1(v) {
-            if (this.__state.space !== "HSV") {
-                Color.recalculateHSV(this);
-                this.__state.space = "HSV";
-            }
-            this.__state[component] = v;
-        }
-    });
-}
-Color.recalculateRGB = function(color, component, componentHexIndex) {
-    if (color.__state.space === "HEX") color.__state[component] = ColorMath.component_from_hex(color.__state.hex, componentHexIndex);
-    else if (color.__state.space === "HSV") Common.extend(color.__state, ColorMath.hsv_to_rgb(color.__state.h, color.__state.s, color.__state.v));
-    else throw new Error("Corrupted color state");
-};
-Color.recalculateHSV = function(color) {
-    var result = ColorMath.rgb_to_hsv(color.r, color.g, color.b);
-    Common.extend(color.__state, {
-        s: result.s,
-        v: result.v
-    });
-    if (!Common.isNaN(result.h)) color.__state.h = result.h;
-    else if (Common.isUndefined(color.__state.h)) color.__state.h = 0;
-};
-Color.COMPONENTS = [
-    "r",
-    "g",
-    "b",
-    "h",
-    "s",
-    "v",
-    "hex",
-    "a"
-];
-defineRGBComponent(Color.prototype, "r", 2);
-defineRGBComponent(Color.prototype, "g", 1);
-defineRGBComponent(Color.prototype, "b", 0);
-defineHSVComponent(Color.prototype, "h");
-defineHSVComponent(Color.prototype, "s");
-defineHSVComponent(Color.prototype, "v");
-Object.defineProperty(Color.prototype, "a", {
-    get: function get$$1() {
-        return this.__state.a;
-    },
-    set: function set$$1(v) {
-        this.__state.a = v;
-    }
-});
-Object.defineProperty(Color.prototype, "hex", {
-    get: function get$$1() {
-        if (this.__state.space !== "HEX") {
-            this.__state.hex = ColorMath.rgb_to_hex(this.r, this.g, this.b);
-            this.__state.space = "HEX";
-        }
-        return this.__state.hex;
-    },
-    set: function set$$1(v) {
-        this.__state.space = "HEX";
-        this.__state.hex = v;
-    }
-});
-var Controller = function() {
-    function Controller(object, property) {
-        classCallCheck(this, Controller);
-        this.initialValue = object[property];
-        this.domElement = document.createElement("div");
-        this.object = object;
-        this.property = property;
-        this.__onChange = undefined;
-        this.__onFinishChange = undefined;
-    }
-    createClass(Controller, [
-        {
-            key: "onChange",
-            value: function onChange(fnc) {
-                this.__onChange = fnc;
-                return this;
-            }
-        },
-        {
-            key: "onFinishChange",
-            value: function onFinishChange(fnc) {
-                this.__onFinishChange = fnc;
-                return this;
-            }
-        },
-        {
-            key: "setValue",
-            value: function setValue(newValue) {
-                this.object[this.property] = newValue;
-                if (this.__onChange) this.__onChange.call(this, newValue);
-                this.updateDisplay();
-                return this;
-            }
-        },
-        {
-            key: "getValue",
-            value: function getValue() {
-                return this.object[this.property];
-            }
-        },
-        {
-            key: "updateDisplay",
-            value: function updateDisplay() {
-                return this;
-            }
-        },
-        {
-            key: "isModified",
-            value: function isModified() {
-                return this.initialValue !== this.getValue();
-            }
-        }
-    ]);
-    return Controller;
-}();
-var EVENT_MAP = {
-    HTMLEvents: [
-        "change"
-    ],
-    MouseEvents: [
-        "click",
-        "mousemove",
-        "mousedown",
-        "mouseup",
-        "mouseover"
-    ],
-    KeyboardEvents: [
-        "keydown"
-    ]
-};
-var EVENT_MAP_INV = {};
-Common.each(EVENT_MAP, function(v, k) {
-    Common.each(v, function(e) {
-        EVENT_MAP_INV[e] = k;
-    });
-});
-var CSS_VALUE_PIXELS = /(\d+(\.\d+)?)px/;
-function cssValueToPixels(val) {
-    if (val === "0" || Common.isUndefined(val)) return 0;
-    var match = val.match(CSS_VALUE_PIXELS);
-    if (!Common.isNull(match)) return parseFloat(match[1]);
-    return 0;
-}
-var dom = {
-    makeSelectable: function makeSelectable(elem, selectable) {
-        if (elem === undefined || elem.style === undefined) return;
-        elem.onselectstart = selectable ? function() {
-            return false;
-        } : function() {};
-        elem.style.MozUserSelect = selectable ? "auto" : "none";
-        elem.style.KhtmlUserSelect = selectable ? "auto" : "none";
-        elem.unselectable = selectable ? "on" : "off";
-    },
-    makeFullscreen: function makeFullscreen(elem, hor, vert) {
-        var vertical = vert;
-        var horizontal = hor;
-        if (Common.isUndefined(horizontal)) horizontal = true;
-        if (Common.isUndefined(vertical)) vertical = true;
-        elem.style.position = "absolute";
-        if (horizontal) {
-            elem.style.left = 0;
-            elem.style.right = 0;
-        }
-        if (vertical) {
-            elem.style.top = 0;
-            elem.style.bottom = 0;
-        }
-    },
-    fakeEvent: function fakeEvent(elem, eventType, pars, aux) {
-        var params = pars || {};
-        var className = EVENT_MAP_INV[eventType];
-        if (!className) throw new Error("Event type " + eventType + " not supported.");
-        var evt = document.createEvent(className);
-        switch(className){
-            case "MouseEvents":
-                var clientX = params.x || params.clientX || 0;
-                var clientY = params.y || params.clientY || 0;
-                evt.initMouseEvent(eventType, params.bubbles || false, params.cancelable || true, window, params.clickCount || 1, 0, 0, clientX, clientY, false, false, false, false, 0, null);
-                break;
-            case "KeyboardEvents":
-                var init = evt.initKeyboardEvent || evt.initKeyEvent;
-                Common.defaults(params, {
-                    cancelable: true,
-                    ctrlKey: false,
-                    altKey: false,
-                    shiftKey: false,
-                    metaKey: false,
-                    keyCode: undefined,
-                    charCode: undefined
-                });
-                init(eventType, params.bubbles || false, params.cancelable, window, params.ctrlKey, params.altKey, params.shiftKey, params.metaKey, params.keyCode, params.charCode);
-                break;
-            default:
-                evt.initEvent(eventType, params.bubbles || false, params.cancelable || true);
-                break;
-        }
-        Common.defaults(evt, aux);
-        elem.dispatchEvent(evt);
-    },
-    bind: function bind(elem, event, func, newBool) {
-        var bool = newBool || false;
-        if (elem.addEventListener) elem.addEventListener(event, func, bool);
-        else if (elem.attachEvent) elem.attachEvent("on" + event, func);
-        return dom;
-    },
-    unbind: function unbind(elem, event, func, newBool) {
-        var bool = newBool || false;
-        if (elem.removeEventListener) elem.removeEventListener(event, func, bool);
-        else if (elem.detachEvent) elem.detachEvent("on" + event, func);
-        return dom;
-    },
-    addClass: function addClass(elem, className) {
-        if (elem.className === undefined) elem.className = className;
-        else if (elem.className !== className) {
-            var classes = elem.className.split(/ +/);
-            if (classes.indexOf(className) === -1) {
-                classes.push(className);
-                elem.className = classes.join(" ").replace(/^\s+/, "").replace(/\s+$/, "");
-            }
-        }
-        return dom;
-    },
-    removeClass: function removeClass(elem, className) {
-        if (className) {
-            if (elem.className === className) elem.removeAttribute("class");
-            else {
-                var classes = elem.className.split(/ +/);
-                var index = classes.indexOf(className);
-                if (index !== -1) {
-                    classes.splice(index, 1);
-                    elem.className = classes.join(" ");
-                }
-            }
-        } else elem.className = undefined;
-        return dom;
-    },
-    hasClass: function hasClass(elem, className) {
-        return new RegExp("(?:^|\\s+)" + className + "(?:\\s+|$)").test(elem.className) || false;
-    },
-    getWidth: function getWidth(elem) {
-        var style = getComputedStyle(elem);
-        return cssValueToPixels(style["border-left-width"]) + cssValueToPixels(style["border-right-width"]) + cssValueToPixels(style["padding-left"]) + cssValueToPixels(style["padding-right"]) + cssValueToPixels(style.width);
-    },
-    getHeight: function getHeight(elem) {
-        var style = getComputedStyle(elem);
-        return cssValueToPixels(style["border-top-width"]) + cssValueToPixels(style["border-bottom-width"]) + cssValueToPixels(style["padding-top"]) + cssValueToPixels(style["padding-bottom"]) + cssValueToPixels(style.height);
-    },
-    getOffset: function getOffset(el) {
-        var elem = el;
-        var offset = {
-            left: 0,
-            top: 0
-        };
-        if (elem.offsetParent) do {
-            offset.left += elem.offsetLeft;
-            offset.top += elem.offsetTop;
-            elem = elem.offsetParent;
-        }while (elem);
-        return offset;
-    },
-    isActive: function isActive(elem) {
-        return elem === document.activeElement && (elem.type || elem.href);
-    }
-};
-var BooleanController = function(_Controller) {
-    inherits(BooleanController, _Controller);
-    function BooleanController(object, property) {
-        classCallCheck(this, BooleanController);
-        var _this2 = possibleConstructorReturn(this, (BooleanController.__proto__ || Object.getPrototypeOf(BooleanController)).call(this, object, property));
-        var _this = _this2;
-        _this2.__prev = _this2.getValue();
-        _this2.__checkbox = document.createElement("input");
-        _this2.__checkbox.setAttribute("type", "checkbox");
-        function onChange() {
-            _this.setValue(!_this.__prev);
-        }
-        dom.bind(_this2.__checkbox, "change", onChange, false);
-        _this2.domElement.appendChild(_this2.__checkbox);
-        _this2.updateDisplay();
-        return _this2;
-    }
-    createClass(BooleanController, [
-        {
-            key: "setValue",
-            value: function setValue(v) {
-                var toReturn = get(BooleanController.prototype.__proto__ || Object.getPrototypeOf(BooleanController.prototype), "setValue", this).call(this, v);
-                if (this.__onFinishChange) this.__onFinishChange.call(this, this.getValue());
-                this.__prev = this.getValue();
-                return toReturn;
-            }
-        },
-        {
-            key: "updateDisplay",
-            value: function updateDisplay() {
-                if (this.getValue() === true) {
-                    this.__checkbox.setAttribute("checked", "checked");
-                    this.__checkbox.checked = true;
-                    this.__prev = true;
-                } else {
-                    this.__checkbox.checked = false;
-                    this.__prev = false;
-                }
-                return get(BooleanController.prototype.__proto__ || Object.getPrototypeOf(BooleanController.prototype), "updateDisplay", this).call(this);
-            }
-        }
-    ]);
-    return BooleanController;
-}(Controller);
-var OptionController = function(_Controller) {
-    inherits(OptionController, _Controller);
-    function OptionController(object, property, opts) {
-        classCallCheck(this, OptionController);
-        var _this2 = possibleConstructorReturn(this, (OptionController.__proto__ || Object.getPrototypeOf(OptionController)).call(this, object, property));
-        var options = opts;
-        var _this = _this2;
-        _this2.__select = document.createElement("select");
-        if (Common.isArray(options)) {
-            var map = {};
-            Common.each(options, function(element) {
-                map[element] = element;
-            });
-            options = map;
-        }
-        Common.each(options, function(value, key) {
-            var opt = document.createElement("option");
-            opt.innerHTML = key;
-            opt.setAttribute("value", value);
-            _this.__select.appendChild(opt);
-        });
-        _this2.updateDisplay();
-        dom.bind(_this2.__select, "change", function() {
-            var desiredValue = this.options[this.selectedIndex].value;
-            _this.setValue(desiredValue);
-        });
-        _this2.domElement.appendChild(_this2.__select);
-        return _this2;
-    }
-    createClass(OptionController, [
-        {
-            key: "setValue",
-            value: function setValue(v) {
-                var toReturn = get(OptionController.prototype.__proto__ || Object.getPrototypeOf(OptionController.prototype), "setValue", this).call(this, v);
-                if (this.__onFinishChange) this.__onFinishChange.call(this, this.getValue());
-                return toReturn;
-            }
-        },
-        {
-            key: "updateDisplay",
-            value: function updateDisplay() {
-                if (dom.isActive(this.__select)) return this;
-                this.__select.value = this.getValue();
-                return get(OptionController.prototype.__proto__ || Object.getPrototypeOf(OptionController.prototype), "updateDisplay", this).call(this);
-            }
-        }
-    ]);
-    return OptionController;
-}(Controller);
-var StringController = function(_Controller) {
-    inherits(StringController, _Controller);
-    function StringController(object, property) {
-        classCallCheck(this, StringController);
-        var _this2 = possibleConstructorReturn(this, (StringController.__proto__ || Object.getPrototypeOf(StringController)).call(this, object, property));
-        var _this = _this2;
-        function onChange() {
-            _this.setValue(_this.__input.value);
-        }
-        function onBlur() {
-            if (_this.__onFinishChange) _this.__onFinishChange.call(_this, _this.getValue());
-        }
-        _this2.__input = document.createElement("input");
-        _this2.__input.setAttribute("type", "text");
-        dom.bind(_this2.__input, "keyup", onChange);
-        dom.bind(_this2.__input, "change", onChange);
-        dom.bind(_this2.__input, "blur", onBlur);
-        dom.bind(_this2.__input, "keydown", function(e) {
-            if (e.keyCode === 13) this.blur();
-        });
-        _this2.updateDisplay();
-        _this2.domElement.appendChild(_this2.__input);
-        return _this2;
-    }
-    createClass(StringController, [
-        {
-            key: "updateDisplay",
-            value: function updateDisplay() {
-                if (!dom.isActive(this.__input)) this.__input.value = this.getValue();
-                return get(StringController.prototype.__proto__ || Object.getPrototypeOf(StringController.prototype), "updateDisplay", this).call(this);
-            }
-        }
-    ]);
-    return StringController;
-}(Controller);
-function numDecimals(x) {
-    var _x = x.toString();
-    if (_x.indexOf(".") > -1) return _x.length - _x.indexOf(".") - 1;
-    return 0;
-}
-var NumberController = function(_Controller) {
-    inherits(NumberController, _Controller);
-    function NumberController(object, property, params) {
-        classCallCheck(this, NumberController);
-        var _this = possibleConstructorReturn(this, (NumberController.__proto__ || Object.getPrototypeOf(NumberController)).call(this, object, property));
-        var _params = params || {};
-        _this.__min = _params.min;
-        _this.__max = _params.max;
-        _this.__step = _params.step;
-        if (Common.isUndefined(_this.__step)) {
-            if (_this.initialValue === 0) _this.__impliedStep = 1;
-            else _this.__impliedStep = Math.pow(10, Math.floor(Math.log(Math.abs(_this.initialValue)) / Math.LN10)) / 10;
-        } else _this.__impliedStep = _this.__step;
-        _this.__precision = numDecimals(_this.__impliedStep);
-        return _this;
-    }
-    createClass(NumberController, [
-        {
-            key: "setValue",
-            value: function setValue(v) {
-                var _v = v;
-                if (this.__min !== undefined && _v < this.__min) _v = this.__min;
-                else if (this.__max !== undefined && _v > this.__max) _v = this.__max;
-                if (this.__step !== undefined && _v % this.__step !== 0) _v = Math.round(_v / this.__step) * this.__step;
-                return get(NumberController.prototype.__proto__ || Object.getPrototypeOf(NumberController.prototype), "setValue", this).call(this, _v);
-            }
-        },
-        {
-            key: "min",
-            value: function min(minValue) {
-                this.__min = minValue;
-                return this;
-            }
-        },
-        {
-            key: "max",
-            value: function max(maxValue) {
-                this.__max = maxValue;
-                return this;
-            }
-        },
-        {
-            key: "step",
-            value: function step(stepValue) {
-                this.__step = stepValue;
-                this.__impliedStep = stepValue;
-                this.__precision = numDecimals(stepValue);
-                return this;
-            }
-        }
-    ]);
-    return NumberController;
-}(Controller);
-function roundToDecimal(value, decimals) {
-    var tenTo = Math.pow(10, decimals);
-    return Math.round(value * tenTo) / tenTo;
-}
-var NumberControllerBox = function(_NumberController) {
-    inherits(NumberControllerBox, _NumberController);
-    function NumberControllerBox(object, property, params) {
-        classCallCheck(this, NumberControllerBox);
-        var _this2 = possibleConstructorReturn(this, (NumberControllerBox.__proto__ || Object.getPrototypeOf(NumberControllerBox)).call(this, object, property, params));
-        _this2.__truncationSuspended = false;
-        var _this = _this2;
-        var prevY = void 0;
-        function onChange() {
-            var attempted = parseFloat(_this.__input.value);
-            if (!Common.isNaN(attempted)) _this.setValue(attempted);
-        }
-        function onFinish() {
-            if (_this.__onFinishChange) _this.__onFinishChange.call(_this, _this.getValue());
-        }
-        function onBlur() {
-            onFinish();
-        }
-        function onMouseDrag(e) {
-            var diff = prevY - e.clientY;
-            _this.setValue(_this.getValue() + diff * _this.__impliedStep);
-            prevY = e.clientY;
-        }
-        function onMouseUp() {
-            dom.unbind(window, "mousemove", onMouseDrag);
-            dom.unbind(window, "mouseup", onMouseUp);
-            onFinish();
-        }
-        function onMouseDown(e) {
-            dom.bind(window, "mousemove", onMouseDrag);
-            dom.bind(window, "mouseup", onMouseUp);
-            prevY = e.clientY;
-        }
-        _this2.__input = document.createElement("input");
-        _this2.__input.setAttribute("type", "text");
-        dom.bind(_this2.__input, "change", onChange);
-        dom.bind(_this2.__input, "blur", onBlur);
-        dom.bind(_this2.__input, "mousedown", onMouseDown);
-        dom.bind(_this2.__input, "keydown", function(e) {
-            if (e.keyCode === 13) {
-                _this.__truncationSuspended = true;
-                this.blur();
-                _this.__truncationSuspended = false;
-                onFinish();
-            }
-        });
-        _this2.updateDisplay();
-        _this2.domElement.appendChild(_this2.__input);
-        return _this2;
-    }
-    createClass(NumberControllerBox, [
-        {
-            key: "updateDisplay",
-            value: function updateDisplay() {
-                this.__input.value = this.__truncationSuspended ? this.getValue() : roundToDecimal(this.getValue(), this.__precision);
-                return get(NumberControllerBox.prototype.__proto__ || Object.getPrototypeOf(NumberControllerBox.prototype), "updateDisplay", this).call(this);
-            }
-        }
-    ]);
-    return NumberControllerBox;
-}(NumberController);
-function map(v, i1, i2, o1, o2) {
-    return o1 + (o2 - o1) * ((v - i1) / (i2 - i1));
-}
-var NumberControllerSlider = function(_NumberController) {
-    inherits(NumberControllerSlider, _NumberController);
-    function NumberControllerSlider(object, property, min, max, step) {
-        classCallCheck(this, NumberControllerSlider);
-        var _this2 = possibleConstructorReturn(this, (NumberControllerSlider.__proto__ || Object.getPrototypeOf(NumberControllerSlider)).call(this, object, property, {
-            min: min,
-            max: max,
-            step: step
-        }));
-        var _this = _this2;
-        _this2.__background = document.createElement("div");
-        _this2.__foreground = document.createElement("div");
-        dom.bind(_this2.__background, "mousedown", onMouseDown);
-        dom.bind(_this2.__background, "touchstart", onTouchStart);
-        dom.addClass(_this2.__background, "slider");
-        dom.addClass(_this2.__foreground, "slider-fg");
-        function onMouseDown(e) {
-            document.activeElement.blur();
-            dom.bind(window, "mousemove", onMouseDrag);
-            dom.bind(window, "mouseup", onMouseUp);
-            onMouseDrag(e);
-        }
-        function onMouseDrag(e) {
-            e.preventDefault();
-            var bgRect = _this.__background.getBoundingClientRect();
-            _this.setValue(map(e.clientX, bgRect.left, bgRect.right, _this.__min, _this.__max));
-            return false;
-        }
-        function onMouseUp() {
-            dom.unbind(window, "mousemove", onMouseDrag);
-            dom.unbind(window, "mouseup", onMouseUp);
-            if (_this.__onFinishChange) _this.__onFinishChange.call(_this, _this.getValue());
-        }
-        function onTouchStart(e) {
-            if (e.touches.length !== 1) return;
-            dom.bind(window, "touchmove", onTouchMove);
-            dom.bind(window, "touchend", onTouchEnd);
-            onTouchMove(e);
-        }
-        function onTouchMove(e) {
-            var clientX = e.touches[0].clientX;
-            var bgRect = _this.__background.getBoundingClientRect();
-            _this.setValue(map(clientX, bgRect.left, bgRect.right, _this.__min, _this.__max));
-        }
-        function onTouchEnd() {
-            dom.unbind(window, "touchmove", onTouchMove);
-            dom.unbind(window, "touchend", onTouchEnd);
-            if (_this.__onFinishChange) _this.__onFinishChange.call(_this, _this.getValue());
-        }
-        _this2.updateDisplay();
-        _this2.__background.appendChild(_this2.__foreground);
-        _this2.domElement.appendChild(_this2.__background);
-        return _this2;
-    }
-    createClass(NumberControllerSlider, [
-        {
-            key: "updateDisplay",
-            value: function updateDisplay() {
-                var pct = (this.getValue() - this.__min) / (this.__max - this.__min);
-                this.__foreground.style.width = pct * 100 + "%";
-                return get(NumberControllerSlider.prototype.__proto__ || Object.getPrototypeOf(NumberControllerSlider.prototype), "updateDisplay", this).call(this);
-            }
-        }
-    ]);
-    return NumberControllerSlider;
-}(NumberController);
-var FunctionController = function(_Controller) {
-    inherits(FunctionController, _Controller);
-    function FunctionController(object, property, text) {
-        classCallCheck(this, FunctionController);
-        var _this2 = possibleConstructorReturn(this, (FunctionController.__proto__ || Object.getPrototypeOf(FunctionController)).call(this, object, property));
-        var _this = _this2;
-        _this2.__button = document.createElement("div");
-        _this2.__button.innerHTML = text === undefined ? "Fire" : text;
-        dom.bind(_this2.__button, "click", function(e) {
-            e.preventDefault();
-            _this.fire();
-            return false;
-        });
-        dom.addClass(_this2.__button, "button");
-        _this2.domElement.appendChild(_this2.__button);
-        return _this2;
-    }
-    createClass(FunctionController, [
-        {
-            key: "fire",
-            value: function fire() {
-                if (this.__onChange) this.__onChange.call(this);
-                this.getValue().call(this.object);
-                if (this.__onFinishChange) this.__onFinishChange.call(this, this.getValue());
-            }
-        }
-    ]);
-    return FunctionController;
-}(Controller);
-var ColorController = function(_Controller) {
-    inherits(ColorController, _Controller);
-    function ColorController(object, property) {
-        classCallCheck(this, ColorController);
-        var _this2 = possibleConstructorReturn(this, (ColorController.__proto__ || Object.getPrototypeOf(ColorController)).call(this, object, property));
-        _this2.__color = new Color(_this2.getValue());
-        _this2.__temp = new Color(0);
-        var _this = _this2;
-        _this2.domElement = document.createElement("div");
-        dom.makeSelectable(_this2.domElement, false);
-        _this2.__selector = document.createElement("div");
-        _this2.__selector.className = "selector";
-        _this2.__saturation_field = document.createElement("div");
-        _this2.__saturation_field.className = "saturation-field";
-        _this2.__field_knob = document.createElement("div");
-        _this2.__field_knob.className = "field-knob";
-        _this2.__field_knob_border = "2px solid ";
-        _this2.__hue_knob = document.createElement("div");
-        _this2.__hue_knob.className = "hue-knob";
-        _this2.__hue_field = document.createElement("div");
-        _this2.__hue_field.className = "hue-field";
-        _this2.__input = document.createElement("input");
-        _this2.__input.type = "text";
-        _this2.__input_textShadow = "0 1px 1px ";
-        dom.bind(_this2.__input, "keydown", function(e) {
-            if (e.keyCode === 13) onBlur.call(this);
-        });
-        dom.bind(_this2.__input, "blur", onBlur);
-        dom.bind(_this2.__selector, "mousedown", function() {
-            dom.addClass(this, "drag").bind(window, "mouseup", function() {
-                dom.removeClass(_this.__selector, "drag");
-            });
-        });
-        dom.bind(_this2.__selector, "touchstart", function() {
-            dom.addClass(this, "drag").bind(window, "touchend", function() {
-                dom.removeClass(_this.__selector, "drag");
-            });
-        });
-        var valueField = document.createElement("div");
-        Common.extend(_this2.__selector.style, {
-            width: "122px",
-            height: "102px",
-            padding: "3px",
-            backgroundColor: "#222",
-            boxShadow: "0px 1px 3px rgba(0,0,0,0.3)"
-        });
-        Common.extend(_this2.__field_knob.style, {
-            position: "absolute",
-            width: "12px",
-            height: "12px",
-            border: _this2.__field_knob_border + (_this2.__color.v < 0.5 ? "#fff" : "#000"),
-            boxShadow: "0px 1px 3px rgba(0,0,0,0.5)",
-            borderRadius: "12px",
-            zIndex: 1
-        });
-        Common.extend(_this2.__hue_knob.style, {
-            position: "absolute",
-            width: "15px",
-            height: "2px",
-            borderRight: "4px solid #fff",
-            zIndex: 1
-        });
-        Common.extend(_this2.__saturation_field.style, {
-            width: "100px",
-            height: "100px",
-            border: "1px solid #555",
-            marginRight: "3px",
-            display: "inline-block",
-            cursor: "pointer"
-        });
-        Common.extend(valueField.style, {
-            width: "100%",
-            height: "100%",
-            background: "none"
-        });
-        linearGradient(valueField, "top", "rgba(0,0,0,0)", "#000");
-        Common.extend(_this2.__hue_field.style, {
-            width: "15px",
-            height: "100px",
-            border: "1px solid #555",
-            cursor: "ns-resize",
-            position: "absolute",
-            top: "3px",
-            right: "3px"
-        });
-        hueGradient(_this2.__hue_field);
-        Common.extend(_this2.__input.style, {
-            outline: "none",
-            textAlign: "center",
-            color: "#fff",
-            border: 0,
-            fontWeight: "bold",
-            textShadow: _this2.__input_textShadow + "rgba(0,0,0,0.7)"
-        });
-        dom.bind(_this2.__saturation_field, "mousedown", fieldDown);
-        dom.bind(_this2.__saturation_field, "touchstart", fieldDown);
-        dom.bind(_this2.__field_knob, "mousedown", fieldDown);
-        dom.bind(_this2.__field_knob, "touchstart", fieldDown);
-        dom.bind(_this2.__hue_field, "mousedown", fieldDownH);
-        dom.bind(_this2.__hue_field, "touchstart", fieldDownH);
-        function fieldDown(e) {
-            setSV(e);
-            dom.bind(window, "mousemove", setSV);
-            dom.bind(window, "touchmove", setSV);
-            dom.bind(window, "mouseup", fieldUpSV);
-            dom.bind(window, "touchend", fieldUpSV);
-        }
-        function fieldDownH(e) {
-            setH(e);
-            dom.bind(window, "mousemove", setH);
-            dom.bind(window, "touchmove", setH);
-            dom.bind(window, "mouseup", fieldUpH);
-            dom.bind(window, "touchend", fieldUpH);
-        }
-        function fieldUpSV() {
-            dom.unbind(window, "mousemove", setSV);
-            dom.unbind(window, "touchmove", setSV);
-            dom.unbind(window, "mouseup", fieldUpSV);
-            dom.unbind(window, "touchend", fieldUpSV);
-            onFinish();
-        }
-        function fieldUpH() {
-            dom.unbind(window, "mousemove", setH);
-            dom.unbind(window, "touchmove", setH);
-            dom.unbind(window, "mouseup", fieldUpH);
-            dom.unbind(window, "touchend", fieldUpH);
-            onFinish();
-        }
-        function onBlur() {
-            var i = interpret(this.value);
-            if (i !== false) {
-                _this.__color.__state = i;
-                _this.setValue(_this.__color.toOriginal());
-            } else this.value = _this.__color.toString();
-        }
-        function onFinish() {
-            if (_this.__onFinishChange) _this.__onFinishChange.call(_this, _this.__color.toOriginal());
-        }
-        _this2.__saturation_field.appendChild(valueField);
-        _this2.__selector.appendChild(_this2.__field_knob);
-        _this2.__selector.appendChild(_this2.__saturation_field);
-        _this2.__selector.appendChild(_this2.__hue_field);
-        _this2.__hue_field.appendChild(_this2.__hue_knob);
-        _this2.domElement.appendChild(_this2.__input);
-        _this2.domElement.appendChild(_this2.__selector);
-        _this2.updateDisplay();
-        function setSV(e) {
-            if (e.type.indexOf("touch") === -1) e.preventDefault();
-            var fieldRect = _this.__saturation_field.getBoundingClientRect();
-            var _ref = e.touches && e.touches[0] || e, clientX = _ref.clientX, clientY = _ref.clientY;
-            var s = (clientX - fieldRect.left) / (fieldRect.right - fieldRect.left);
-            var v = 1 - (clientY - fieldRect.top) / (fieldRect.bottom - fieldRect.top);
-            if (v > 1) v = 1;
-            else if (v < 0) v = 0;
-            if (s > 1) s = 1;
-            else if (s < 0) s = 0;
-            _this.__color.v = v;
-            _this.__color.s = s;
-            _this.setValue(_this.__color.toOriginal());
-            return false;
-        }
-        function setH(e) {
-            if (e.type.indexOf("touch") === -1) e.preventDefault();
-            var fieldRect = _this.__hue_field.getBoundingClientRect();
-            var _ref2 = e.touches && e.touches[0] || e, clientY = _ref2.clientY;
-            var h = 1 - (clientY - fieldRect.top) / (fieldRect.bottom - fieldRect.top);
-            if (h > 1) h = 1;
-            else if (h < 0) h = 0;
-            _this.__color.h = h * 360;
-            _this.setValue(_this.__color.toOriginal());
-            return false;
-        }
-        return _this2;
-    }
-    createClass(ColorController, [
-        {
-            key: "updateDisplay",
-            value: function updateDisplay() {
-                var i = interpret(this.getValue());
-                if (i !== false) {
-                    var mismatch = false;
-                    Common.each(Color.COMPONENTS, function(component) {
-                        if (!Common.isUndefined(i[component]) && !Common.isUndefined(this.__color.__state[component]) && i[component] !== this.__color.__state[component]) {
-                            mismatch = true;
-                            return {};
-                        }
-                    }, this);
-                    if (mismatch) Common.extend(this.__color.__state, i);
-                }
-                Common.extend(this.__temp.__state, this.__color.__state);
-                this.__temp.a = 1;
-                var flip = this.__color.v < 0.5 || this.__color.s > 0.5 ? 255 : 0;
-                var _flip = 255 - flip;
-                Common.extend(this.__field_knob.style, {
-                    marginLeft: 100 * this.__color.s - 7 + "px",
-                    marginTop: 100 * (1 - this.__color.v) - 7 + "px",
-                    backgroundColor: this.__temp.toHexString(),
-                    border: this.__field_knob_border + "rgb(" + flip + "," + flip + "," + flip + ")"
-                });
-                this.__hue_knob.style.marginTop = (1 - this.__color.h / 360) * 100 + "px";
-                this.__temp.s = 1;
-                this.__temp.v = 1;
-                linearGradient(this.__saturation_field, "left", "#fff", this.__temp.toHexString());
-                this.__input.value = this.__color.toString();
-                Common.extend(this.__input.style, {
-                    backgroundColor: this.__color.toHexString(),
-                    color: "rgb(" + flip + "," + flip + "," + flip + ")",
-                    textShadow: this.__input_textShadow + "rgba(" + _flip + "," + _flip + "," + _flip + ",.7)"
-                });
-            }
-        }
-    ]);
-    return ColorController;
-}(Controller);
-var vendors = [
-    "-moz-",
-    "-o-",
-    "-webkit-",
-    "-ms-",
-    ""
-];
-function linearGradient(elem, x, a, b) {
-    elem.style.background = "";
-    Common.each(vendors, function(vendor) {
-        elem.style.cssText += "background: " + vendor + "linear-gradient(" + x + ", " + a + " 0%, " + b + " 100%); ";
-    });
-}
-function hueGradient(elem) {
-    elem.style.background = "";
-    elem.style.cssText += "background: -moz-linear-gradient(top,  #ff0000 0%, #ff00ff 17%, #0000ff 34%, #00ffff 50%, #00ff00 67%, #ffff00 84%, #ff0000 100%);";
-    elem.style.cssText += "background: -webkit-linear-gradient(top,  #ff0000 0%,#ff00ff 17%,#0000ff 34%,#00ffff 50%,#00ff00 67%,#ffff00 84%,#ff0000 100%);";
-    elem.style.cssText += "background: -o-linear-gradient(top,  #ff0000 0%,#ff00ff 17%,#0000ff 34%,#00ffff 50%,#00ff00 67%,#ffff00 84%,#ff0000 100%);";
-    elem.style.cssText += "background: -ms-linear-gradient(top,  #ff0000 0%,#ff00ff 17%,#0000ff 34%,#00ffff 50%,#00ff00 67%,#ffff00 84%,#ff0000 100%);";
-    elem.style.cssText += "background: linear-gradient(top,  #ff0000 0%,#ff00ff 17%,#0000ff 34%,#00ffff 50%,#00ff00 67%,#ffff00 84%,#ff0000 100%);";
-}
-var css = {
-    load: function load(url, indoc) {
-        var doc = indoc || document;
-        var link = doc.createElement("link");
-        link.type = "text/css";
-        link.rel = "stylesheet";
-        link.href = url;
-        doc.getElementsByTagName("head")[0].appendChild(link);
-    },
-    inject: function inject(cssContent, indoc) {
-        var doc = indoc || document;
-        var injected = document.createElement("style");
-        injected.type = "text/css";
-        injected.innerHTML = cssContent;
-        var head = doc.getElementsByTagName("head")[0];
-        try {
-            head.appendChild(injected);
-        } catch (e) {}
-    }
-};
-var saveDialogContents = '<div id="dg-save" class="dg dialogue">\n\n  Here\'s the new load parameter for your <code>GUI</code>\'s constructor:\n\n  <textarea id="dg-new-constructor"></textarea>\n\n  <div id="dg-save-locally">\n\n    <input id="dg-local-storage" type="checkbox"/> Automatically save\n    values to <code>localStorage</code> on exit.\n\n    <div id="dg-local-explain">The values saved to <code>localStorage</code> will\n      override those passed to <code>dat.GUI</code>\'s constructor. This makes it\n      easier to work incrementally, but <code>localStorage</code> is fragile,\n      and your friends may not see the same values you do.\n\n    </div>\n\n  </div>\n\n</div>';
-var ControllerFactory = function ControllerFactory(object, property) {
-    var initialValue = object[property];
-    if (Common.isArray(arguments[2]) || Common.isObject(arguments[2])) return new OptionController(object, property, arguments[2]);
-    if (Common.isNumber(initialValue)) {
-        if (Common.isNumber(arguments[2]) && Common.isNumber(arguments[3])) {
-            if (Common.isNumber(arguments[4])) return new NumberControllerSlider(object, property, arguments[2], arguments[3], arguments[4]);
-            return new NumberControllerSlider(object, property, arguments[2], arguments[3]);
-        }
-        if (Common.isNumber(arguments[4])) return new NumberControllerBox(object, property, {
-            min: arguments[2],
-            max: arguments[3],
-            step: arguments[4]
-        });
-        return new NumberControllerBox(object, property, {
-            min: arguments[2],
-            max: arguments[3]
-        });
-    }
-    if (Common.isString(initialValue)) return new StringController(object, property);
-    if (Common.isFunction(initialValue)) return new FunctionController(object, property, "");
-    if (Common.isBoolean(initialValue)) return new BooleanController(object, property);
-    return null;
-};
-function requestAnimationFrame(callback) {
-    setTimeout(callback, 1000 / 60);
-}
-var requestAnimationFrame$1 = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || requestAnimationFrame;
-var CenteredDiv = function() {
-    function CenteredDiv() {
-        classCallCheck(this, CenteredDiv);
-        this.backgroundElement = document.createElement("div");
-        Common.extend(this.backgroundElement.style, {
-            backgroundColor: "rgba(0,0,0,0.8)",
-            top: 0,
-            left: 0,
-            display: "none",
-            zIndex: "1000",
-            opacity: 0,
-            WebkitTransition: "opacity 0.2s linear",
-            transition: "opacity 0.2s linear"
-        });
-        dom.makeFullscreen(this.backgroundElement);
-        this.backgroundElement.style.position = "fixed";
-        this.domElement = document.createElement("div");
-        Common.extend(this.domElement.style, {
-            position: "fixed",
-            display: "none",
-            zIndex: "1001",
-            opacity: 0,
-            WebkitTransition: "-webkit-transform 0.2s ease-out, opacity 0.2s linear",
-            transition: "transform 0.2s ease-out, opacity 0.2s linear"
-        });
-        document.body.appendChild(this.backgroundElement);
-        document.body.appendChild(this.domElement);
-        var _this = this;
-        dom.bind(this.backgroundElement, "click", function() {
-            _this.hide();
-        });
-    }
-    createClass(CenteredDiv, [
-        {
-            key: "show",
-            value: function show() {
-                var _this = this;
-                this.backgroundElement.style.display = "block";
-                this.domElement.style.display = "block";
-                this.domElement.style.opacity = 0;
-                this.domElement.style.webkitTransform = "scale(1.1)";
-                this.layout();
-                Common.defer(function() {
-                    _this.backgroundElement.style.opacity = 1;
-                    _this.domElement.style.opacity = 1;
-                    _this.domElement.style.webkitTransform = "scale(1)";
-                });
-            }
-        },
-        {
-            key: "hide",
-            value: function hide() {
-                var _this = this;
-                var hide = function hide() {
-                    _this.domElement.style.display = "none";
-                    _this.backgroundElement.style.display = "none";
-                    dom.unbind(_this.domElement, "webkitTransitionEnd", hide);
-                    dom.unbind(_this.domElement, "transitionend", hide);
-                    dom.unbind(_this.domElement, "oTransitionEnd", hide);
-                };
-                dom.bind(this.domElement, "webkitTransitionEnd", hide);
-                dom.bind(this.domElement, "transitionend", hide);
-                dom.bind(this.domElement, "oTransitionEnd", hide);
-                this.backgroundElement.style.opacity = 0;
-                this.domElement.style.opacity = 0;
-                this.domElement.style.webkitTransform = "scale(1.1)";
-            }
-        },
-        {
-            key: "layout",
-            value: function layout() {
-                this.domElement.style.left = window.innerWidth / 2 - dom.getWidth(this.domElement) / 2 + "px";
-                this.domElement.style.top = window.innerHeight / 2 - dom.getHeight(this.domElement) / 2 + "px";
-            }
-        }
-    ]);
-    return CenteredDiv;
-}();
-var styleSheet = ___$insertStyle(".dg ul{list-style:none;margin:0;padding:0;width:100%;clear:both}.dg.ac{position:fixed;top:0;left:0;right:0;height:0;z-index:0}.dg:not(.ac) .main{overflow:hidden}.dg.main{-webkit-transition:opacity .1s linear;-o-transition:opacity .1s linear;-moz-transition:opacity .1s linear;transition:opacity .1s linear}.dg.main.taller-than-window{overflow-y:auto}.dg.main.taller-than-window .close-button{opacity:1;margin-top:-1px;border-top:1px solid #2c2c2c}.dg.main ul.closed .close-button{opacity:1 !important}.dg.main:hover .close-button,.dg.main .close-button.drag{opacity:1}.dg.main .close-button{-webkit-transition:opacity .1s linear;-o-transition:opacity .1s linear;-moz-transition:opacity .1s linear;transition:opacity .1s linear;border:0;line-height:19px;height:20px;cursor:pointer;text-align:center;background-color:#000}.dg.main .close-button.close-top{position:relative}.dg.main .close-button.close-bottom{position:absolute}.dg.main .close-button:hover{background-color:#111}.dg.a{float:right;margin-right:15px;overflow-y:visible}.dg.a.has-save>ul.close-top{margin-top:0}.dg.a.has-save>ul.close-bottom{margin-top:27px}.dg.a.has-save>ul.closed{margin-top:0}.dg.a .save-row{top:0;z-index:1002}.dg.a .save-row.close-top{position:relative}.dg.a .save-row.close-bottom{position:fixed}.dg li{-webkit-transition:height .1s ease-out;-o-transition:height .1s ease-out;-moz-transition:height .1s ease-out;transition:height .1s ease-out;-webkit-transition:overflow .1s linear;-o-transition:overflow .1s linear;-moz-transition:overflow .1s linear;transition:overflow .1s linear}.dg li:not(.folder){cursor:auto;height:27px;line-height:27px;padding:0 4px 0 5px}.dg li.folder{padding:0;border-left:4px solid rgba(0,0,0,0)}.dg li.title{cursor:pointer;margin-left:-4px}.dg .closed li:not(.title),.dg .closed ul li,.dg .closed ul li>*{height:0;overflow:hidden;border:0}.dg .cr{clear:both;padding-left:3px;height:27px;overflow:hidden}.dg .property-name{cursor:default;float:left;clear:left;width:40%;overflow:hidden;text-overflow:ellipsis}.dg .cr.function .property-name{width:100%}.dg .c{float:left;width:60%;position:relative}.dg .c input[type=text]{border:0;margin-top:4px;padding:3px;width:100%;float:right}.dg .has-slider input[type=text]{width:30%;margin-left:0}.dg .slider{float:left;width:66%;margin-left:-5px;margin-right:0;height:19px;margin-top:4px}.dg .slider-fg{height:100%}.dg .c input[type=checkbox]{margin-top:7px}.dg .c select{margin-top:5px}.dg .cr.function,.dg .cr.function .property-name,.dg .cr.function *,.dg .cr.boolean,.dg .cr.boolean *{cursor:pointer}.dg .cr.color{overflow:visible}.dg .selector{display:none;position:absolute;margin-left:-9px;margin-top:23px;z-index:10}.dg .c:hover .selector,.dg .selector.drag{display:block}.dg li.save-row{padding:0}.dg li.save-row .button{display:inline-block;padding:0px 6px}.dg.dialogue{background-color:#222;width:460px;padding:15px;font-size:13px;line-height:15px}#dg-new-constructor{padding:10px;color:#222;font-family:Monaco, monospace;font-size:10px;border:0;resize:none;box-shadow:inset 1px 1px 1px #888;word-wrap:break-word;margin:12px 0;display:block;width:440px;overflow-y:scroll;height:100px;position:relative}#dg-local-explain{display:none;font-size:11px;line-height:17px;border-radius:3px;background-color:#333;padding:8px;margin-top:10px}#dg-local-explain code{font-size:10px}#dat-gui-save-locally{display:none}.dg{color:#eee;font:11px 'Lucida Grande', sans-serif;text-shadow:0 -1px 0 #111}.dg.main::-webkit-scrollbar{width:5px;background:#1a1a1a}.dg.main::-webkit-scrollbar-corner{height:0;display:none}.dg.main::-webkit-scrollbar-thumb{border-radius:5px;background:#676767}.dg li:not(.folder){background:#1a1a1a;border-bottom:1px solid #2c2c2c}.dg li.save-row{line-height:25px;background:#dad5cb;border:0}.dg li.save-row select{margin-left:5px;width:108px}.dg li.save-row .button{margin-left:5px;margin-top:1px;border-radius:2px;font-size:9px;line-height:7px;padding:4px 4px 5px 4px;background:#c5bdad;color:#fff;text-shadow:0 1px 0 #b0a58f;box-shadow:0 -1px 0 #b0a58f;cursor:pointer}.dg li.save-row .button.gears{background:#c5bdad url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAANCAYAAAB/9ZQ7AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAQJJREFUeNpiYKAU/P//PwGIC/ApCABiBSAW+I8AClAcgKxQ4T9hoMAEUrxx2QSGN6+egDX+/vWT4e7N82AMYoPAx/evwWoYoSYbACX2s7KxCxzcsezDh3evFoDEBYTEEqycggWAzA9AuUSQQgeYPa9fPv6/YWm/Acx5IPb7ty/fw+QZblw67vDs8R0YHyQhgObx+yAJkBqmG5dPPDh1aPOGR/eugW0G4vlIoTIfyFcA+QekhhHJhPdQxbiAIguMBTQZrPD7108M6roWYDFQiIAAv6Aow/1bFwXgis+f2LUAynwoIaNcz8XNx3Dl7MEJUDGQpx9gtQ8YCueB+D26OECAAQDadt7e46D42QAAAABJRU5ErkJggg==) 2px 1px no-repeat;height:7px;width:8px}.dg li.save-row .button:hover{background-color:#bab19e;box-shadow:0 -1px 0 #b0a58f}.dg li.folder{border-bottom:0}.dg li.title{padding-left:16px;background:#000 url(data:image/gif;base64,R0lGODlhBQAFAJEAAP////Pz8////////yH5BAEAAAIALAAAAAAFAAUAAAIIlI+hKgFxoCgAOw==) 6px 10px no-repeat;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.2)}.dg .closed li.title{background-image:url(data:image/gif;base64,R0lGODlhBQAFAJEAAP////Pz8////////yH5BAEAAAIALAAAAAAFAAUAAAIIlGIWqMCbWAEAOw==)}.dg .cr.boolean{border-left:3px solid #806787}.dg .cr.color{border-left:3px solid}.dg .cr.function{border-left:3px solid #e61d5f}.dg .cr.number{border-left:3px solid #2FA1D6}.dg .cr.number input[type=text]{color:#2FA1D6}.dg .cr.string{border-left:3px solid #1ed36f}.dg .cr.string input[type=text]{color:#1ed36f}.dg .cr.function:hover,.dg .cr.boolean:hover{background:#111}.dg .c input[type=text]{background:#303030;outline:none}.dg .c input[type=text]:hover{background:#3c3c3c}.dg .c input[type=text]:focus{background:#494949;color:#fff}.dg .c .slider{background:#303030;cursor:ew-resize}.dg .c .slider-fg{background:#2FA1D6;max-width:100%}.dg .c .slider:hover{background:#3c3c3c}.dg .c .slider:hover .slider-fg{background:#44abda}\n");
-css.inject(styleSheet);
-var CSS_NAMESPACE = "dg";
-var HIDE_KEY_CODE = 72;
-var CLOSE_BUTTON_HEIGHT = 20;
-var DEFAULT_DEFAULT_PRESET_NAME = "Default";
-var SUPPORTS_LOCAL_STORAGE = function() {
-    try {
-        return !!window.localStorage;
-    } catch (e) {
-        return false;
-    }
-}();
-var SAVE_DIALOGUE = void 0;
-var autoPlaceVirgin = true;
-var autoPlaceContainer = void 0;
-var hide = false;
-var hideableGuis = [];
-var GUI = function GUI(pars) {
-    var _this = this;
-    var params = pars || {};
-    this.domElement = document.createElement("div");
-    this.__ul = document.createElement("ul");
-    this.domElement.appendChild(this.__ul);
-    dom.addClass(this.domElement, CSS_NAMESPACE);
-    this.__folders = {};
-    this.__controllers = [];
-    this.__rememberedObjects = [];
-    this.__rememberedObjectIndecesToControllers = [];
-    this.__listening = [];
-    params = Common.defaults(params, {
-        closeOnTop: false,
-        autoPlace: true,
-        width: GUI.DEFAULT_WIDTH
-    });
-    params = Common.defaults(params, {
-        resizable: params.autoPlace,
-        hideable: params.autoPlace
-    });
-    if (!Common.isUndefined(params.load)) {
-        if (params.preset) params.load.preset = params.preset;
-    } else params.load = {
-        preset: DEFAULT_DEFAULT_PRESET_NAME
-    };
-    if (Common.isUndefined(params.parent) && params.hideable) hideableGuis.push(this);
-    params.resizable = Common.isUndefined(params.parent) && params.resizable;
-    if (params.autoPlace && Common.isUndefined(params.scrollable)) params.scrollable = true;
-    var useLocalStorage = SUPPORTS_LOCAL_STORAGE && localStorage.getItem(getLocalStorageHash(this, "isLocal")) === "true";
-    var saveToLocalStorage = void 0;
-    var titleRow = void 0;
-    Object.defineProperties(this, {
-        parent: {
-            get: function get$$1() {
-                return params.parent;
-            }
-        },
-        scrollable: {
-            get: function get$$1() {
-                return params.scrollable;
-            }
-        },
-        autoPlace: {
-            get: function get$$1() {
-                return params.autoPlace;
-            }
-        },
-        closeOnTop: {
-            get: function get$$1() {
-                return params.closeOnTop;
-            }
-        },
-        preset: {
-            get: function get$$1() {
-                if (_this.parent) return _this.getRoot().preset;
-                return params.load.preset;
-            },
-            set: function set$$1(v) {
-                if (_this.parent) _this.getRoot().preset = v;
-                else params.load.preset = v;
-                setPresetSelectIndex(this);
-                _this.revert();
-            }
-        },
-        width: {
-            get: function get$$1() {
-                return params.width;
-            },
-            set: function set$$1(v) {
-                params.width = v;
-                setWidth(_this, v);
-            }
-        },
-        name: {
-            get: function get$$1() {
-                return params.name;
-            },
-            set: function set$$1(v) {
-                params.name = v;
-                if (titleRow) titleRow.innerHTML = params.name;
-            }
-        },
-        closed: {
-            get: function get$$1() {
-                return params.closed;
-            },
-            set: function set$$1(v) {
-                params.closed = v;
-                if (params.closed) dom.addClass(_this.__ul, GUI.CLASS_CLOSED);
-                else dom.removeClass(_this.__ul, GUI.CLASS_CLOSED);
-                this.onResize();
-                if (_this.__closeButton) _this.__closeButton.innerHTML = v ? GUI.TEXT_OPEN : GUI.TEXT_CLOSED;
-            }
-        },
-        load: {
-            get: function get$$1() {
-                return params.load;
-            }
-        },
-        useLocalStorage: {
-            get: function get$$1() {
-                return useLocalStorage;
-            },
-            set: function set$$1(bool) {
-                if (SUPPORTS_LOCAL_STORAGE) {
-                    useLocalStorage = bool;
-                    if (bool) dom.bind(window, "unload", saveToLocalStorage);
-                    else dom.unbind(window, "unload", saveToLocalStorage);
-                    localStorage.setItem(getLocalStorageHash(_this, "isLocal"), bool);
-                }
-            }
-        }
-    });
-    if (Common.isUndefined(params.parent)) {
-        this.closed = params.closed || false;
-        dom.addClass(this.domElement, GUI.CLASS_MAIN);
-        dom.makeSelectable(this.domElement, false);
-        if (SUPPORTS_LOCAL_STORAGE) {
-            if (useLocalStorage) {
-                _this.useLocalStorage = true;
-                var savedGui = localStorage.getItem(getLocalStorageHash(this, "gui"));
-                if (savedGui) params.load = JSON.parse(savedGui);
-            }
-        }
-        this.__closeButton = document.createElement("div");
-        this.__closeButton.innerHTML = GUI.TEXT_CLOSED;
-        dom.addClass(this.__closeButton, GUI.CLASS_CLOSE_BUTTON);
-        if (params.closeOnTop) {
-            dom.addClass(this.__closeButton, GUI.CLASS_CLOSE_TOP);
-            this.domElement.insertBefore(this.__closeButton, this.domElement.childNodes[0]);
-        } else {
-            dom.addClass(this.__closeButton, GUI.CLASS_CLOSE_BOTTOM);
-            this.domElement.appendChild(this.__closeButton);
-        }
-        dom.bind(this.__closeButton, "click", function() {
-            _this.closed = !_this.closed;
-        });
-    } else {
-        if (params.closed === undefined) params.closed = true;
-        var titleRowName = document.createTextNode(params.name);
-        dom.addClass(titleRowName, "controller-name");
-        titleRow = addRow(_this, titleRowName);
-        var onClickTitle = function onClickTitle(e) {
-            e.preventDefault();
-            _this.closed = !_this.closed;
-            return false;
-        };
-        dom.addClass(this.__ul, GUI.CLASS_CLOSED);
-        dom.addClass(titleRow, "title");
-        dom.bind(titleRow, "click", onClickTitle);
-        if (!params.closed) this.closed = false;
-    }
-    if (params.autoPlace) {
-        if (Common.isUndefined(params.parent)) {
-            if (autoPlaceVirgin) {
-                autoPlaceContainer = document.createElement("div");
-                dom.addClass(autoPlaceContainer, CSS_NAMESPACE);
-                dom.addClass(autoPlaceContainer, GUI.CLASS_AUTO_PLACE_CONTAINER);
-                document.body.appendChild(autoPlaceContainer);
-                autoPlaceVirgin = false;
-            }
-            autoPlaceContainer.appendChild(this.domElement);
-            dom.addClass(this.domElement, GUI.CLASS_AUTO_PLACE);
-        }
-        if (!this.parent) setWidth(_this, params.width);
-    }
-    this.__resizeHandler = function() {
-        _this.onResizeDebounced();
-    };
-    dom.bind(window, "resize", this.__resizeHandler);
-    dom.bind(this.__ul, "webkitTransitionEnd", this.__resizeHandler);
-    dom.bind(this.__ul, "transitionend", this.__resizeHandler);
-    dom.bind(this.__ul, "oTransitionEnd", this.__resizeHandler);
-    this.onResize();
-    if (params.resizable) addResizeHandle(this);
-    saveToLocalStorage = function saveToLocalStorage() {
-        if (SUPPORTS_LOCAL_STORAGE && localStorage.getItem(getLocalStorageHash(_this, "isLocal")) === "true") localStorage.setItem(getLocalStorageHash(_this, "gui"), JSON.stringify(_this.getSaveObject()));
-    };
-    this.saveToLocalStorageIfPossible = saveToLocalStorage;
-    function resetWidth() {
-        var root = _this.getRoot();
-        root.width += 1;
-        Common.defer(function() {
-            root.width -= 1;
-        });
-    }
-    if (!params.parent) resetWidth();
-};
-GUI.toggleHide = function() {
-    hide = !hide;
-    Common.each(hideableGuis, function(gui) {
-        gui.domElement.style.display = hide ? "none" : "";
-    });
-};
-GUI.CLASS_AUTO_PLACE = "a";
-GUI.CLASS_AUTO_PLACE_CONTAINER = "ac";
-GUI.CLASS_MAIN = "main";
-GUI.CLASS_CONTROLLER_ROW = "cr";
-GUI.CLASS_TOO_TALL = "taller-than-window";
-GUI.CLASS_CLOSED = "closed";
-GUI.CLASS_CLOSE_BUTTON = "close-button";
-GUI.CLASS_CLOSE_TOP = "close-top";
-GUI.CLASS_CLOSE_BOTTOM = "close-bottom";
-GUI.CLASS_DRAG = "drag";
-GUI.DEFAULT_WIDTH = 245;
-GUI.TEXT_CLOSED = "Close Controls";
-GUI.TEXT_OPEN = "Open Controls";
-GUI._keydownHandler = function(e) {
-    if (document.activeElement.type !== "text" && (e.which === HIDE_KEY_CODE || e.keyCode === HIDE_KEY_CODE)) GUI.toggleHide();
-};
-dom.bind(window, "keydown", GUI._keydownHandler, false);
-Common.extend(GUI.prototype, {
-    add: function add(object, property) {
-        return _add(this, object, property, {
-            factoryArgs: Array.prototype.slice.call(arguments, 2)
-        });
-    },
-    addColor: function addColor(object, property) {
-        return _add(this, object, property, {
-            color: true
-        });
-    },
-    remove: function remove(controller) {
-        this.__ul.removeChild(controller.__li);
-        this.__controllers.splice(this.__controllers.indexOf(controller), 1);
-        var _this = this;
-        Common.defer(function() {
-            _this.onResize();
-        });
-    },
-    destroy: function destroy() {
-        if (this.parent) throw new Error("Only the root GUI should be removed with .destroy(). For subfolders, use gui.removeFolder(folder) instead.");
-        if (this.autoPlace) autoPlaceContainer.removeChild(this.domElement);
-        var _this = this;
-        Common.each(this.__folders, function(subfolder) {
-            _this.removeFolder(subfolder);
-        });
-        dom.unbind(window, "keydown", GUI._keydownHandler, false);
-        removeListeners(this);
-    },
-    addFolder: function addFolder(name) {
-        if (this.__folders[name] !== undefined) throw new Error('You already have a folder in this GUI by the name "' + name + '"');
-        var newGuiParams = {
-            name: name,
-            parent: this
-        };
-        newGuiParams.autoPlace = this.autoPlace;
-        if (this.load && this.load.folders && this.load.folders[name]) {
-            newGuiParams.closed = this.load.folders[name].closed;
-            newGuiParams.load = this.load.folders[name];
-        }
-        var gui = new GUI(newGuiParams);
-        this.__folders[name] = gui;
-        var li = addRow(this, gui.domElement);
-        dom.addClass(li, "folder");
-        return gui;
-    },
-    removeFolder: function removeFolder(folder) {
-        this.__ul.removeChild(folder.domElement.parentElement);
-        delete this.__folders[folder.name];
-        if (this.load && this.load.folders && this.load.folders[folder.name]) delete this.load.folders[folder.name];
-        removeListeners(folder);
-        var _this = this;
-        Common.each(folder.__folders, function(subfolder) {
-            folder.removeFolder(subfolder);
-        });
-        Common.defer(function() {
-            _this.onResize();
-        });
-    },
-    open: function open() {
-        this.closed = false;
-    },
-    close: function close() {
-        this.closed = true;
-    },
-    hide: function hide() {
-        this.domElement.style.display = "none";
-    },
-    show: function show() {
-        this.domElement.style.display = "";
-    },
-    onResize: function onResize() {
-        var root = this.getRoot();
-        if (root.scrollable) {
-            var top = dom.getOffset(root.__ul).top;
-            var h = 0;
-            Common.each(root.__ul.childNodes, function(node) {
-                if (!(root.autoPlace && node === root.__save_row)) h += dom.getHeight(node);
-            });
-            if (window.innerHeight - top - CLOSE_BUTTON_HEIGHT < h) {
-                dom.addClass(root.domElement, GUI.CLASS_TOO_TALL);
-                root.__ul.style.height = window.innerHeight - top - CLOSE_BUTTON_HEIGHT + "px";
-            } else {
-                dom.removeClass(root.domElement, GUI.CLASS_TOO_TALL);
-                root.__ul.style.height = "auto";
-            }
-        }
-        if (root.__resize_handle) Common.defer(function() {
-            root.__resize_handle.style.height = root.__ul.offsetHeight + "px";
-        });
-        if (root.__closeButton) root.__closeButton.style.width = root.width + "px";
-    },
-    onResizeDebounced: Common.debounce(function() {
-        this.onResize();
-    }, 50),
-    remember: function remember() {
-        if (Common.isUndefined(SAVE_DIALOGUE)) {
-            SAVE_DIALOGUE = new CenteredDiv();
-            SAVE_DIALOGUE.domElement.innerHTML = saveDialogContents;
-        }
-        if (this.parent) throw new Error("You can only call remember on a top level GUI.");
-        var _this = this;
-        Common.each(Array.prototype.slice.call(arguments), function(object) {
-            if (_this.__rememberedObjects.length === 0) addSaveMenu(_this);
-            if (_this.__rememberedObjects.indexOf(object) === -1) _this.__rememberedObjects.push(object);
-        });
-        if (this.autoPlace) setWidth(this, this.width);
-    },
-    getRoot: function getRoot() {
-        var gui = this;
-        while(gui.parent)gui = gui.parent;
-        return gui;
-    },
-    getSaveObject: function getSaveObject() {
-        var toReturn = this.load;
-        toReturn.closed = this.closed;
-        if (this.__rememberedObjects.length > 0) {
-            toReturn.preset = this.preset;
-            if (!toReturn.remembered) toReturn.remembered = {};
-            toReturn.remembered[this.preset] = getCurrentPreset(this);
-        }
-        toReturn.folders = {};
-        Common.each(this.__folders, function(element, key) {
-            toReturn.folders[key] = element.getSaveObject();
-        });
-        return toReturn;
-    },
-    save: function save() {
-        if (!this.load.remembered) this.load.remembered = {};
-        this.load.remembered[this.preset] = getCurrentPreset(this);
-        markPresetModified(this, false);
-        this.saveToLocalStorageIfPossible();
-    },
-    saveAs: function saveAs(presetName) {
-        if (!this.load.remembered) {
-            this.load.remembered = {};
-            this.load.remembered[DEFAULT_DEFAULT_PRESET_NAME] = getCurrentPreset(this, true);
-        }
-        this.load.remembered[presetName] = getCurrentPreset(this);
-        this.preset = presetName;
-        addPresetOption(this, presetName, true);
-        this.saveToLocalStorageIfPossible();
-    },
-    revert: function revert(gui) {
-        Common.each(this.__controllers, function(controller) {
-            if (!this.getRoot().load.remembered) controller.setValue(controller.initialValue);
-            else recallSavedValue(gui || this.getRoot(), controller);
-            if (controller.__onFinishChange) controller.__onFinishChange.call(controller, controller.getValue());
-        }, this);
-        Common.each(this.__folders, function(folder) {
-            folder.revert(folder);
-        });
-        if (!gui) markPresetModified(this.getRoot(), false);
-    },
-    listen: function listen(controller) {
-        var init = this.__listening.length === 0;
-        this.__listening.push(controller);
-        if (init) updateDisplays(this.__listening);
-    },
-    updateDisplay: function updateDisplay() {
-        Common.each(this.__controllers, function(controller) {
-            controller.updateDisplay();
-        });
-        Common.each(this.__folders, function(folder) {
-            folder.updateDisplay();
-        });
-    }
-});
-function addRow(gui, newDom, liBefore) {
-    var li = document.createElement("li");
-    if (newDom) li.appendChild(newDom);
-    if (liBefore) gui.__ul.insertBefore(li, liBefore);
-    else gui.__ul.appendChild(li);
-    gui.onResize();
-    return li;
-}
-function removeListeners(gui) {
-    dom.unbind(window, "resize", gui.__resizeHandler);
-    if (gui.saveToLocalStorageIfPossible) dom.unbind(window, "unload", gui.saveToLocalStorageIfPossible);
-}
-function markPresetModified(gui, modified) {
-    var opt = gui.__preset_select[gui.__preset_select.selectedIndex];
-    if (modified) opt.innerHTML = opt.value + "*";
-    else opt.innerHTML = opt.value;
-}
-function augmentController(gui, li, controller) {
-    controller.__li = li;
-    controller.__gui = gui;
-    Common.extend(controller, {
-        options: function options(_options) {
-            if (arguments.length > 1) {
-                var nextSibling = controller.__li.nextElementSibling;
-                controller.remove();
-                return _add(gui, controller.object, controller.property, {
-                    before: nextSibling,
-                    factoryArgs: [
-                        Common.toArray(arguments)
-                    ]
-                });
-            }
-            if (Common.isArray(_options) || Common.isObject(_options)) {
-                var _nextSibling = controller.__li.nextElementSibling;
-                controller.remove();
-                return _add(gui, controller.object, controller.property, {
-                    before: _nextSibling,
-                    factoryArgs: [
-                        _options
-                    ]
-                });
-            }
-        },
-        name: function name(_name) {
-            controller.__li.firstElementChild.firstElementChild.innerHTML = _name;
-            return controller;
-        },
-        listen: function listen() {
-            controller.__gui.listen(controller);
-            return controller;
-        },
-        remove: function remove() {
-            controller.__gui.remove(controller);
-            return controller;
-        }
-    });
-    if (controller instanceof NumberControllerSlider) {
-        var box = new NumberControllerBox(controller.object, controller.property, {
-            min: controller.__min,
-            max: controller.__max,
-            step: controller.__step
-        });
-        Common.each([
-            "updateDisplay",
-            "onChange",
-            "onFinishChange",
-            "step",
-            "min",
-            "max"
-        ], function(method) {
-            var pc = controller[method];
-            var pb = box[method];
-            controller[method] = box[method] = function() {
-                var args = Array.prototype.slice.call(arguments);
-                pb.apply(box, args);
-                return pc.apply(controller, args);
-            };
-        });
-        dom.addClass(li, "has-slider");
-        controller.domElement.insertBefore(box.domElement, controller.domElement.firstElementChild);
-    } else if (controller instanceof NumberControllerBox) {
-        var r = function r(returned) {
-            if (Common.isNumber(controller.__min) && Common.isNumber(controller.__max)) {
-                var oldName = controller.__li.firstElementChild.firstElementChild.innerHTML;
-                var wasListening = controller.__gui.__listening.indexOf(controller) > -1;
-                controller.remove();
-                var newController = _add(gui, controller.object, controller.property, {
-                    before: controller.__li.nextElementSibling,
-                    factoryArgs: [
-                        controller.__min,
-                        controller.__max,
-                        controller.__step
-                    ]
-                });
-                newController.name(oldName);
-                if (wasListening) newController.listen();
-                return newController;
-            }
-            return returned;
-        };
-        controller.min = Common.compose(r, controller.min);
-        controller.max = Common.compose(r, controller.max);
-    } else if (controller instanceof BooleanController) {
-        dom.bind(li, "click", function() {
-            dom.fakeEvent(controller.__checkbox, "click");
-        });
-        dom.bind(controller.__checkbox, "click", function(e) {
-            e.stopPropagation();
-        });
-    } else if (controller instanceof FunctionController) {
-        dom.bind(li, "click", function() {
-            dom.fakeEvent(controller.__button, "click");
-        });
-        dom.bind(li, "mouseover", function() {
-            dom.addClass(controller.__button, "hover");
-        });
-        dom.bind(li, "mouseout", function() {
-            dom.removeClass(controller.__button, "hover");
-        });
-    } else if (controller instanceof ColorController) {
-        dom.addClass(li, "color");
-        controller.updateDisplay = Common.compose(function(val) {
-            li.style.borderLeftColor = controller.__color.toString();
-            return val;
-        }, controller.updateDisplay);
-        controller.updateDisplay();
-    }
-    controller.setValue = Common.compose(function(val) {
-        if (gui.getRoot().__preset_select && controller.isModified()) markPresetModified(gui.getRoot(), true);
-        return val;
-    }, controller.setValue);
-}
-function recallSavedValue(gui, controller) {
-    var root = gui.getRoot();
-    var matchedIndex = root.__rememberedObjects.indexOf(controller.object);
-    if (matchedIndex !== -1) {
-        var controllerMap = root.__rememberedObjectIndecesToControllers[matchedIndex];
-        if (controllerMap === undefined) {
-            controllerMap = {};
-            root.__rememberedObjectIndecesToControllers[matchedIndex] = controllerMap;
-        }
-        controllerMap[controller.property] = controller;
-        if (root.load && root.load.remembered) {
-            var presetMap = root.load.remembered;
-            var preset = void 0;
-            if (presetMap[gui.preset]) preset = presetMap[gui.preset];
-            else if (presetMap[DEFAULT_DEFAULT_PRESET_NAME]) preset = presetMap[DEFAULT_DEFAULT_PRESET_NAME];
-            else return;
-            if (preset[matchedIndex] && preset[matchedIndex][controller.property] !== undefined) {
-                var value = preset[matchedIndex][controller.property];
-                controller.initialValue = value;
-                controller.setValue(value);
-            }
-        }
-    }
-}
-function _add(gui, object, property, params) {
-    if (object[property] === undefined) throw new Error('Object "' + object + '" has no property "' + property + '"');
-    var controller = void 0;
-    if (params.color) controller = new ColorController(object, property);
-    else {
-        var factoryArgs = [
-            object,
-            property
-        ].concat(params.factoryArgs);
-        controller = ControllerFactory.apply(gui, factoryArgs);
-    }
-    if (params.before instanceof Controller) params.before = params.before.__li;
-    recallSavedValue(gui, controller);
-    dom.addClass(controller.domElement, "c");
-    var name = document.createElement("span");
-    dom.addClass(name, "property-name");
-    name.innerHTML = controller.property;
-    var container = document.createElement("div");
-    container.appendChild(name);
-    container.appendChild(controller.domElement);
-    var li = addRow(gui, container, params.before);
-    dom.addClass(li, GUI.CLASS_CONTROLLER_ROW);
-    if (controller instanceof ColorController) dom.addClass(li, "color");
-    else dom.addClass(li, _typeof(controller.getValue()));
-    augmentController(gui, li, controller);
-    gui.__controllers.push(controller);
-    return controller;
-}
-function getLocalStorageHash(gui, key) {
-    return document.location.href + "." + key;
-}
-function addPresetOption(gui, name, setSelected) {
-    var opt = document.createElement("option");
-    opt.innerHTML = name;
-    opt.value = name;
-    gui.__preset_select.appendChild(opt);
-    if (setSelected) gui.__preset_select.selectedIndex = gui.__preset_select.length - 1;
-}
-function showHideExplain(gui, explain) {
-    explain.style.display = gui.useLocalStorage ? "block" : "none";
-}
-function addSaveMenu(gui) {
-    var div = gui.__save_row = document.createElement("li");
-    dom.addClass(gui.domElement, "has-save");
-    gui.__ul.insertBefore(div, gui.__ul.firstChild);
-    dom.addClass(div, "save-row");
-    var gears = document.createElement("span");
-    gears.innerHTML = "&nbsp;";
-    dom.addClass(gears, "button gears");
-    var button = document.createElement("span");
-    button.innerHTML = "Save";
-    dom.addClass(button, "button");
-    dom.addClass(button, "save");
-    var button2 = document.createElement("span");
-    button2.innerHTML = "New";
-    dom.addClass(button2, "button");
-    dom.addClass(button2, "save-as");
-    var button3 = document.createElement("span");
-    button3.innerHTML = "Revert";
-    dom.addClass(button3, "button");
-    dom.addClass(button3, "revert");
-    var select = gui.__preset_select = document.createElement("select");
-    if (gui.load && gui.load.remembered) Common.each(gui.load.remembered, function(value, key) {
-        addPresetOption(gui, key, key === gui.preset);
-    });
-    else addPresetOption(gui, DEFAULT_DEFAULT_PRESET_NAME, false);
-    dom.bind(select, "change", function() {
-        for(var index = 0; index < gui.__preset_select.length; index++)gui.__preset_select[index].innerHTML = gui.__preset_select[index].value;
-        gui.preset = this.value;
-    });
-    div.appendChild(select);
-    div.appendChild(gears);
-    div.appendChild(button);
-    div.appendChild(button2);
-    div.appendChild(button3);
-    if (SUPPORTS_LOCAL_STORAGE) {
-        var explain = document.getElementById("dg-local-explain");
-        var localStorageCheckBox = document.getElementById("dg-local-storage");
-        var saveLocally = document.getElementById("dg-save-locally");
-        saveLocally.style.display = "block";
-        if (localStorage.getItem(getLocalStorageHash(gui, "isLocal")) === "true") localStorageCheckBox.setAttribute("checked", "checked");
-        showHideExplain(gui, explain);
-        dom.bind(localStorageCheckBox, "change", function() {
-            gui.useLocalStorage = !gui.useLocalStorage;
-            showHideExplain(gui, explain);
-        });
-    }
-    var newConstructorTextArea = document.getElementById("dg-new-constructor");
-    dom.bind(newConstructorTextArea, "keydown", function(e) {
-        if (e.metaKey && (e.which === 67 || e.keyCode === 67)) SAVE_DIALOGUE.hide();
-    });
-    dom.bind(gears, "click", function() {
-        newConstructorTextArea.innerHTML = JSON.stringify(gui.getSaveObject(), undefined, 2);
-        SAVE_DIALOGUE.show();
-        newConstructorTextArea.focus();
-        newConstructorTextArea.select();
-    });
-    dom.bind(button, "click", function() {
-        gui.save();
-    });
-    dom.bind(button2, "click", function() {
-        var presetName = prompt("Enter a new preset name.");
-        if (presetName) gui.saveAs(presetName);
-    });
-    dom.bind(button3, "click", function() {
-        gui.revert();
-    });
-}
-function addResizeHandle(gui) {
-    var pmouseX = void 0;
-    gui.__resize_handle = document.createElement("div");
-    Common.extend(gui.__resize_handle.style, {
-        width: "6px",
-        marginLeft: "-3px",
-        height: "200px",
-        cursor: "ew-resize",
-        position: "absolute"
-    });
-    function drag(e) {
-        e.preventDefault();
-        gui.width += pmouseX - e.clientX;
-        gui.onResize();
-        pmouseX = e.clientX;
-        return false;
-    }
-    function dragStop() {
-        dom.removeClass(gui.__closeButton, GUI.CLASS_DRAG);
-        dom.unbind(window, "mousemove", drag);
-        dom.unbind(window, "mouseup", dragStop);
-    }
-    function dragStart(e) {
-        e.preventDefault();
-        pmouseX = e.clientX;
-        dom.addClass(gui.__closeButton, GUI.CLASS_DRAG);
-        dom.bind(window, "mousemove", drag);
-        dom.bind(window, "mouseup", dragStop);
-        return false;
-    }
-    dom.bind(gui.__resize_handle, "mousedown", dragStart);
-    dom.bind(gui.__closeButton, "mousedown", dragStart);
-    gui.domElement.insertBefore(gui.__resize_handle, gui.domElement.firstElementChild);
-}
-function setWidth(gui, w) {
-    gui.domElement.style.width = w + "px";
-    if (gui.__save_row && gui.autoPlace) gui.__save_row.style.width = w + "px";
-    if (gui.__closeButton) gui.__closeButton.style.width = w + "px";
-}
-function getCurrentPreset(gui, useInitialValues) {
-    var toReturn = {};
-    Common.each(gui.__rememberedObjects, function(val, index) {
-        var savedValues = {};
-        var controllerMap = gui.__rememberedObjectIndecesToControllers[index];
-        Common.each(controllerMap, function(controller, property) {
-            savedValues[property] = useInitialValues ? controller.initialValue : controller.getValue();
-        });
-        toReturn[index] = savedValues;
-    });
-    return toReturn;
-}
-function setPresetSelectIndex(gui) {
-    for(var index = 0; index < gui.__preset_select.length; index++)if (gui.__preset_select[index].value === gui.preset) gui.__preset_select.selectedIndex = index;
-}
-function updateDisplays(controllerArray) {
-    if (controllerArray.length !== 0) requestAnimationFrame$1.call(window, function() {
-        updateDisplays(controllerArray);
-    });
-    Common.each(controllerArray, function(c) {
-        c.updateDisplay();
-    });
-}
-var color = {
-    Color: Color,
-    math: ColorMath,
-    interpret: interpret
-};
-var controllers = {
-    Controller: Controller,
-    BooleanController: BooleanController,
-    OptionController: OptionController,
-    StringController: StringController,
-    NumberController: NumberController,
-    NumberControllerBox: NumberControllerBox,
-    NumberControllerSlider: NumberControllerSlider,
-    FunctionController: FunctionController,
-    ColorController: ColorController
-};
-var dom$1 = {
-    dom: dom
-};
-var gui = {
-    GUI: GUI
-};
-var GUI$1 = GUI;
-var index = {
-    color: color,
-    controllers: controllers,
-    dom: dom$1,
-    gui: gui,
-    GUI: GUI$1
-};
-exports.default = index;
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6uDDT":[function(require,module,exports) {
-module.exports = require("d3c866867ba2c705").getBundleURL("fwMGY") + "logo_anim.bdd28bce.glb" + "?" + Date.now();
-
-},{"d3c866867ba2c705":"lgJ39"}],"83LuI":[function(require,module,exports) {
-module.exports = require("cd1b5c1c6f1a4f1d").getBundleURL("fwMGY") + "starts.eba3382a.hdr" + "?" + Date.now();
-
-},{"cd1b5c1c6f1a4f1d":"lgJ39"}]},["3joXF","6wY4T"], "6wY4T", "parcelRequire94c2")
-
-//# sourceMappingURL=index.367c65e4.js.map
+//# sourceMappingURL=index.c70bd28b.js.map
