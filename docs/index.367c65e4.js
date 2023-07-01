@@ -664,6 +664,7 @@ backgroundLoader.load(background, function(texture) {
 const domRenderer = new (0, _css3Drenderer.CSS3DRenderer)();
 const mainRenderer = new _three.WebGLRenderer({
     antialias: true,
+    alpha: true,
     powerPreference: "high-performance"
 });
 domRenderer.setSize(SIZE.x, SIZE.y);
@@ -932,9 +933,16 @@ function updateCameraPosition() {
 // Función para agregar partículas a la escena
 function addParticles(scene, numParticles, scale) {
     // Crea el material de las partículas
-    const material = new _three.PointsMaterial({
-        size: 5,
-        color: 0xffffff // Color de las partículas
+    // Crear material de partícula
+    var material = new _three.PointsMaterial({
+        size: 8,
+        color: 0xffffff,
+        map: new _three.TextureLoader().load(new URL(require("20bc8ee3c6a06aa5")).href),
+        transparent: true,
+        blending: _three.AdditiveBlending,
+        emissive: new _three.Color(0xffffff),
+        depthTest: false,
+        transparentSorting: true // Habilitar ordenamiento de transparencias
     });
     // Crea la geometría de las partículas
     const geometry = new _three.BufferGeometry();
@@ -954,7 +962,7 @@ function addParticles(scene, numParticles, scale) {
     scene.add(particles);
 }
 
-},{"three":"ktPTu","three/examples/jsm/controls/OrbitControls":"7mqRv","three/examples/jsm/loaders/GLTFLoader":"dVRsF","three/examples/jsm/loaders/RGBELoader":"cfP3d","three/examples/jsm/postprocessing/EffectComposer":"e5jie","three/examples/jsm/postprocessing/RenderPass":"hXnUO","three/examples/jsm/postprocessing/UnrealBloomPass":"3iDYE","..//src/text-anim":"bpRzV","..//src/model_loader":"gaVEv","..//src/PostProcesing":"9mulx","./DomManager":"lwjwC","..//src/audio-controller.js":"gF6CA","three/examples/jsm/renderers/css3drenderer":"gmEI9","dat.gui":"k3xQk","3ae531851fff9dc2":"6uDDT","76f054369dcc67e9":"83LuI","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"ktPTu":[function(require,module,exports) {
+},{"three":"ktPTu","three/examples/jsm/controls/OrbitControls":"7mqRv","three/examples/jsm/loaders/GLTFLoader":"dVRsF","three/examples/jsm/loaders/RGBELoader":"cfP3d","three/examples/jsm/postprocessing/EffectComposer":"e5jie","three/examples/jsm/postprocessing/RenderPass":"hXnUO","three/examples/jsm/postprocessing/UnrealBloomPass":"3iDYE","..//src/text-anim":"bpRzV","..//src/model_loader":"gaVEv","..//src/PostProcesing":"9mulx","./DomManager":"lwjwC","..//src/audio-controller.js":"gF6CA","three/examples/jsm/renderers/css3drenderer":"gmEI9","dat.gui":"k3xQk","3ae531851fff9dc2":"6uDDT","76f054369dcc67e9":"83LuI","20bc8ee3c6a06aa5":"jI0Ia","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"ktPTu":[function(require,module,exports) {
 /**
  * @license
  * Copyright 2010-2023 Three.js Authors
@@ -37150,7 +37158,7 @@ function BloomPass() {
     const bloomConfig = {
         resolution: new (0, _three.Vector2)(window.innerWidth, window.innerHeight),
         strength: 1.7,
-        radius: 0.9,
+        radius: 0.5,
         threshold: 0
     };
     //setup bloom
@@ -39773,6 +39781,9 @@ module.exports = require("d3c866867ba2c705").getBundleURL("fwMGY") + "logo_anim.
 },{"d3c866867ba2c705":"lgJ39"}],"83LuI":[function(require,module,exports) {
 module.exports = require("cd1b5c1c6f1a4f1d").getBundleURL("fwMGY") + "starts.eba3382a.hdr" + "?" + Date.now();
 
-},{"cd1b5c1c6f1a4f1d":"lgJ39"}]},["3joXF","6wY4T"], "6wY4T", "parcelRequire94c2")
+},{"cd1b5c1c6f1a4f1d":"lgJ39"}],"jI0Ia":[function(require,module,exports) {
+module.exports = require("3dc144bb915c6961").getBundleURL("fwMGY") + "sparkle.325484ee.png" + "?" + Date.now();
+
+},{"3dc144bb915c6961":"lgJ39"}]},["3joXF","6wY4T"], "6wY4T", "parcelRequire94c2")
 
 //# sourceMappingURL=index.367c65e4.js.map
